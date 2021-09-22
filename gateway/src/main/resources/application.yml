@@ -1,5 +1,5 @@
 server:
-  port: 8088
+  port: 8080
 
 ---
 
@@ -11,23 +11,23 @@ spring:
         - id: User
           uri: http://localhost:8081
           predicates:
-            - Path=/users/** 
+            - Path=/user/** 
         - id: Dashboard
           uri: http://localhost:8082
           predicates:
-            - Path= /dashboards/**
+            - Path= /dashboard/**
         - id: Reservation
           uri: http://localhost:8083
           predicates:
-            - Path=/reservations/** 
+            - Path=/reservation/** 
         - id: Hospital
           uri: http://localhost:8084
           predicates:
-            - Path=/reservations/** 
+            - Path=/hospital/** 
         - id: VaccineStock
           uri: http://localhost:8085
           predicates:
-            - Path=/stocks/** 
+            - Path=/stock/** 
       globalcors:
         corsConfigurations:
           '[/**]':
@@ -50,23 +50,23 @@ spring:
         - id: User
           uri: http://User:8080
           predicates:
-            - Path=/users/** 
+            - Path=/user/** 
         - id: Dashboard
           uri: http://Dashboard:8080
           predicates:
-            - Path= /dashboards/**
+            - Path= /dashboard/**
         - id: Reservation
           uri: http://Reservation:8080
           predicates:
-            - Path=/reservations/** 
+            - Path=/reservation/** 
         - id: Hospital
           uri: http://Hospital:8080
           predicates:
-            - Path=/reservations/** 
+            - Path=/hospital/** 
         - id: VaccineStock
           uri: http://VaccineStock:8080
           predicates:
-            - Path=/stocks/** 
+            - Path=/stock/** 
       globalcors:
         corsConfigurations:
           '[/**]':

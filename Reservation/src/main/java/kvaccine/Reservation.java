@@ -6,33 +6,32 @@ import java.util.List;
 import java.util.Date;
 
 @Entity
-@Table(name="Reservation_table")
+@Table(name="reservation_table")
 public class Reservation {
 
     @Id
     @GeneratedValue(strategy=GenerationType.AUTO)
     private Long id;
+    private Long userId;
     private String userName;
     private String userRedNumber;
     private String reserveDate;
     private String reserveStatus;
     private String cancelDate;
-    private Long userId;
+
 
     @PostPersist
     public void onPostPersist(){
-        DateRequested dateRequested = new DateRequested();
-        BeanUtils.copyProperties(this, dateRequested);
-        dateRequested.publishAfterCommit();
-
-        ReservationRequested reservationRequested = new ReservationRequested();
-        BeanUtils.copyProperties(this, reservationRequested);
-        reservationRequested.publishAfterCommit();
-
-        ReservationCancelled reservationCancelled = new ReservationCancelled();
-        BeanUtils.copyProperties(this, reservationCancelled);
-        reservationCancelled.publishAfterCommit();
-
+    	
+    	if (this.reserveStatus.equals("RESERVE")) {
+            ReservationRequested reservationRequested = new ReservationRequested();
+            BeanUtils.copyProperties(this, reservationRequested);
+            reservationRequested.publishAfterCommit();    		
+    	} else if (this.reserveStatus.equals("CANCEL")) {
+            ReservationCancelled reservationCancelled = new ReservationCancelled();
+            BeanUtils.copyProperties(this, reservationCancelled);
+            reservationCancelled.publishAfterCommit();    		
+    	}
     }
 
     public Long getId() {

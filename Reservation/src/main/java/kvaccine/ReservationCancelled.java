@@ -3,6 +3,7 @@ package kvaccine;
 public class ReservationCancelled extends AbstractEvent {
 
     private Long id;
+    private Long userId;
     private String userName;
     private String userRedNumber;
     private String reserveStataus;
@@ -19,7 +20,16 @@ public class ReservationCancelled extends AbstractEvent {
     public void setId(Long id) {
         this.id = id;
     }
-    public String getUserName() {
+    
+    public Long getUserId() {
+		return userId;
+	}
+
+	public void setUserId(Long userId) {
+		this.userId = userId;
+	}
+
+	public String getUserName() {
         return userName;
     }
 

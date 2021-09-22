@@ -9,7 +9,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 
- @RestController
- public class ReservationController {
-
- }
+@RestController
+@RequestMapping("/stock")
+public class VaccineStockController {
+}

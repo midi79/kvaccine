@@ -10,40 +10,34 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class PolicyHandler{
-    @Autowired StockRepository stockRepository;
+    @Autowired 
+    VaccineStockRepository vaccineStockRepository;
 
     @StreamListener(KafkaProcessor.INPUT)
-    public void wheneverReservationReceived_Reserve(@Payload ReservationReceived reservationReceived){
+    public void wheneverReservationReceived_Reserve(@Payload ReservationReceived reservationReceived) {
 
         if(!reservationReceived.validate()) return;
-
         System.out.println("\n\n##### listener Reserve : " + reservationReceived.toJson() + "\n\n");
 
-
-
-        // Sample Logic //
-        // Stock stock = new Stock();
-        // stockRepository.save(stock);
+        VaccineStock stock = new VaccineStock();
+        stock.setVaccineType(reservationReceived.getVaccineType());
+        stock.setVaccineCount(-1);
+        
+        vaccineStockRepository.save(stock);
 
     }
+    
     @StreamListener(KafkaProcessor.INPUT)
     public void wheneverReservationCancelled_Cancel(@Payload ReservationCancelled reservationCancelled){
 
         if(!reservationCancelled.validate()) return;
-
         System.out.println("\n\n##### listener Cancel : " + reservationCancelled.toJson() + "\n\n");
 
-
-
-        // Sample Logic //
-        // Stock stock = new Stock();
-        // stockRepository.save(stock);
+        VaccineStock stock = new VaccineStock();
+        stock.setVaccineType(reservationCancelled.getVaccineType());
+        stock.setVaccineCount(1);
+        vaccineStockRepository.save(stock);
 
     }
-
-
-    @StreamListener(KafkaProcessor.INPUT)
-    public void whatever(@Payload String eventString){}
-
 
 }
