@@ -2,6 +2,9 @@ package kvaccine;
 
 import javax.persistence.*;
 import org.springframework.beans.BeanUtils;
+
+import net.bytebuddy.asm.Advice.This;
+
 import java.util.List;
 import java.util.Date;
 
@@ -21,18 +24,21 @@ public class User {
     private String vaccineType;
 
     @PostPersist
-    public void onPostPersist(){
-
-    	if(this.reserveStatus.equals("RESERVE")) {
-	        ReservationRequested reservationRequested = new ReservationRequested();
+    public void onPostPersist() {
+    	if("RESERVE".equals(this.reserveStatus)) {
+	        UserReservationRequested reservationRequested = new UserReservationRequested();
 	        BeanUtils.copyProperties(this, reservationRequested);
 	        reservationRequested.publishAfterCommit();
-    	} else if (this.reserveStatus.equals("CANCEL")) {
-    		ReservationCancelled reservationCancelled = new ReservationCancelled();
+    	}     	
+    }
+        
+    @PostUpdate
+    public void onUpdatePersist() {
+    	if ("CANCEL".equals(this.reserveStatus)) {
+    		UserReservationCancelled reservationCancelled = new UserReservationCancelled();
             BeanUtils.copyProperties(this, reservationCancelled);
             reservationCancelled.publishAfterCommit();
     	}
-    	
     }
 
     public Long getId() {

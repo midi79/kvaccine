@@ -5,7 +5,7 @@ public class ReservationRequested extends AbstractEvent {
     private Long id;
     private Long userId;
     private String userName;
-    private String userRedNumber;
+    private String userRegNumber;
     private String reserveDate;
     private String reserveStatus;
 
@@ -40,13 +40,7 @@ public class ReservationRequested extends AbstractEvent {
     public void setUserName(String userName) {
         this.userName = userName;
     }
-    public String getUserRedNumber() {
-        return userRedNumber;
-    }
 
-    public void setUserRedNumber(String userRedNumber) {
-        this.userRedNumber = userRedNumber;
-    }
     public String getReserveDate() {
         return reserveDate;
     }
@@ -54,5 +48,13 @@ public class ReservationRequested extends AbstractEvent {
     public void setReserveDate(String reserveDate) {
         this.reserveDate = reserveDate;
     }
+
+	public String getUserRegNumber() {
+		return userRegNumber;
+	}
+
+	public void setUserRegNumber(String userRegNumber) {
+		this.userRegNumber = userRegNumber;
+	}
 
 }

@@ -24,9 +24,9 @@ public class Hospital {
     @PostPersist
     public void onPostPersist() {
     	if (this.reserveStatus.equals("RESERVE")) {
-            ReservationReceived reservationReceived = new ReservationReceived();
-            BeanUtils.copyProperties(this, reservationReceived);
-            reservationReceived.publishAfterCommit();
+            HospitalReservationReceived hospitalReservationReceived = new HospitalReservationReceived();
+            BeanUtils.copyProperties(this, hospitalReservationReceived);
+            hospitalReservationReceived.publishAfterCommit();
     	}
     }
     
@@ -37,9 +37,9 @@ public class Hospital {
             BeanUtils.copyProperties(this, vaccineInjected);
             vaccineInjected.publishAfterCommit();    		
     	} else if (this.reserveStatus.equals("CANCEL")) {
-            ReservationCancelled reservationCancelled = new ReservationCancelled();
-            BeanUtils.copyProperties(this, reservationCancelled);
-            reservationCancelled.publishAfterCommit();
+            HospitalReservationCancelled hospitalReservationCancelled = new HospitalReservationCancelled();
+            BeanUtils.copyProperties(this, hospitalReservationCancelled);
+            hospitalReservationCancelled.publishAfterCommit();
     	}
     }
 

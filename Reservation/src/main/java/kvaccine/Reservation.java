@@ -14,20 +14,24 @@ public class Reservation {
     private Long id;
     private Long userId;
     private String userName;
-    private String userRedNumber;
+    private String userRegNumber;
     private String reserveDate;
     private String reserveStatus;
     private String cancelDate;
 
 
     @PostPersist
-    public void onPostPersist(){
-    	
+    public void onPostPersist() {    	
     	if (this.reserveStatus.equals("RESERVE")) {
             ReservationRequested reservationRequested = new ReservationRequested();
             BeanUtils.copyProperties(this, reservationRequested);
             reservationRequested.publishAfterCommit();    		
-    	} else if (this.reserveStatus.equals("CANCEL")) {
+    	} 
+    }
+    
+    @PostUpdate
+    public void onPostUpdate() {
+    	if (this.reserveStatus.equals("CANCEL")) {
             ReservationCancelled reservationCancelled = new ReservationCancelled();
             BeanUtils.copyProperties(this, reservationCancelled);
             reservationCancelled.publishAfterCommit();    		
@@ -48,13 +52,7 @@ public class Reservation {
     public void setUserName(String userName) {
         this.userName = userName;
     }
-    public String getUserRedNumber() {
-        return userRedNumber;
-    }
 
-    public void setUserRedNumber(String userRedNumber) {
-        this.userRedNumber = userRedNumber;
-    }
     public String getReserveDate() {
         return reserveDate;
     }
@@ -83,6 +81,14 @@ public class Reservation {
     public void setUserId(Long userId) {
         this.userId = userId;
     }
+
+	public String getUserRegNumber() {
+		return userRegNumber;
+	}
+
+	public void setUserRegNumber(String userRegNumber) {
+		this.userRegNumber = userRegNumber;
+	}
 
 
 

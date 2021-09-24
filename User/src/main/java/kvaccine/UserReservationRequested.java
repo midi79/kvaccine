@@ -1,13 +1,14 @@
 package kvaccine;
 
-public class ReservationRequested extends AbstractEvent {
+public class UserReservationRequested extends AbstractEvent {
 
     private Long id;
     private String userName;
     private String userRegNumber;
     private String reserveDate;
+    private String reserveStatus;
 
-    public ReservationRequested(){
+    public UserReservationRequested(){
         super();
     }
 
@@ -39,4 +40,12 @@ public class ReservationRequested extends AbstractEvent {
     public void setReserveDate(String reserveDate) {
         this.reserveDate = reserveDate;
     }
+
+	public String getReserveStatus() {
+		return reserveStatus;
+	}
+
+	public void setReserveStatus(String reserveStatus) {
+		this.reserveStatus = reserveStatus;
+	}
 }

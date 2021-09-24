@@ -14,7 +14,7 @@ public class PolicyHandler{
     VaccineStockRepository vaccineStockRepository;
 
     @StreamListener(KafkaProcessor.INPUT)
-    public void wheneverReservationReceived_Reserve(@Payload ReservationReceived reservationReceived) {
+    public void wheneverReservationReceived_Reserve(@Payload HospitalReservationReceived reservationReceived) {
 
         if(!reservationReceived.validate()) return;
         System.out.println("\n\n##### listener Reserve : " + reservationReceived.toJson() + "\n\n");
@@ -28,7 +28,7 @@ public class PolicyHandler{
     }
     
     @StreamListener(KafkaProcessor.INPUT)
-    public void wheneverReservationCancelled_Cancel(@Payload ReservationCancelled reservationCancelled){
+    public void wheneverReservationCancelled_Cancel(@Payload HospitalReservationCancelled reservationCancelled){
 
         if(!reservationCancelled.validate()) return;
         System.out.println("\n\n##### listener Cancel : " + reservationCancelled.toJson() + "\n\n");

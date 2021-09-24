@@ -30,7 +30,7 @@ public class PolicyHandler {
         hospital.setHospitalName("Korean Hospital");
         hospital.setUserId(reservationRequested.getUserId());
         hospital.setUserName(reservationRequested.getUserName());
-        hospital.setUserRegNumber(reservationRequested.getUserRedNumber());
+        hospital.setUserRegNumber(reservationRequested.getUserRegNumber());
         hospital.setReserveDate(reservationRequested.getReserveDate());
         hospital.setReserveStatus(reservationRequested.getReserveStatus());
         
@@ -49,7 +49,7 @@ public class PolicyHandler {
         System.out.println("\n\n##### listener Hospital ReservationCancelled : " + reservationCancelled.toJson() + "\n\n");
 
         Hospital hospital = hospitalRepository.findByUserId(reservationCancelled.getUserId());
-        hospital.setReserveStatus(reservationCancelled.getReserveStataus());
+        hospital.setReserveStatus(reservationCancelled.getReserveStatus());
 
         hospitalRepository.save(hospital);
 

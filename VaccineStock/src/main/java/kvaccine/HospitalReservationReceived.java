@@ -1,6 +1,6 @@
 package kvaccine;
 
-public class ReservationCancelled extends AbstractEvent {
+public class HospitalReservationReceived extends AbstractEvent {
 
     private Long id;
     private String vaccineType;

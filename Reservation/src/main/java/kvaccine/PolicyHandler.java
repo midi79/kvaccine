@@ -20,28 +20,28 @@ public class PolicyHandler {
     ReservationRepository reservationRepository;
 
     @StreamListener(KafkaProcessor.INPUT)
-    public void wheneverReservationRequested_Reserve(@Payload ReservationRequested reservationRequested){
+    public void wheneverReservationRequested_Reserve(@Payload UserReservationRequested userReservationRequested) {
 
-        if(!reservationRequested.validate()) return;
-        System.out.println("\n\n##### listener ReservationRequested : " + reservationRequested.toJson() + "\n\n");
+        if(!userReservationRequested.validate()) return;
+        System.out.println("\n\n##### listener UserReservationRequested : " + userReservationRequested.toJson() + "\n\n");
 
         Reservation reservation = new Reservation();
-        reservation.setUserId(reservationRequested.getId());
-        reservation.setReserveStatus(reservationRequested.getReserveStataus());
-        reservation.setUserName(reservationRequested.getUserName());
-        reservation.setUserRedNumber(reservationRequested.getUserRedNumber());
-        reservation.setReserveDate(reservationRequested.getReserveDate());
+        reservation.setUserId(userReservationRequested.getId());
+        reservation.setReserveStatus(userReservationRequested.getReserveStatus());
+        reservation.setUserName(userReservationRequested.getUserName());
+        reservation.setUserRegNumber(userReservationRequested.getUserRegNumber());
+        reservation.setReserveDate(userReservationRequested.getReserveDate());
         
         reservationRepository.save(reservation);
 
     }
     @StreamListener(KafkaProcessor.INPUT)
-    public void wheneverReservationCancelled_Cancel(@Payload ReservationCancelled reservationCancelled){
+    public void wheneverReservationCancelled_Cancel(@Payload UserReservationCancelled userReservationCancelled){
 
-        if(!reservationCancelled.validate()) return;
-        System.out.println("\n\n##### listener ReservationCancelled : " + reservationCancelled.toJson() + "\n\n");
+        if(!userReservationCancelled.validate()) return;
+        System.out.println("\n\n##### listener UserReservationCancelled : " + userReservationCancelled.toJson() + "\n\n");
 
-        Reservation reservation = reservationRepository.findByUserId(reservationCancelled.getId());
+        Reservation reservation = reservationRepository.findByUserId(userReservationCancelled.getId());
         
         if (reservation != null) {
     		DateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");

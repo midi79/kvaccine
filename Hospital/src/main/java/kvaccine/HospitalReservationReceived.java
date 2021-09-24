@@ -1,9 +1,13 @@
 package kvaccine;
 
-public class ReservationReceived extends AbstractEvent {
+public class HospitalReservationReceived extends AbstractEvent {
 
     private Long id;
     private String vaccineType;
+
+    public HospitalReservationReceived(){
+        super();
+    }
 
     public Long getId() {
         return id;
@@ -20,4 +24,6 @@ public class ReservationReceived extends AbstractEvent {
 	public void setVaccineType(String vaccineType) {
 		this.vaccineType = vaccineType;
 	}
+    
+    
 }

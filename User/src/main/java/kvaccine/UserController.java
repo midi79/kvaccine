@@ -27,7 +27,7 @@ public class UserController {
 	public ResponseEntity<ArrayList<ReserveDate>> getDateList(@RequestBody Reservation reservation) {
         kvaccine.external.Reservation externalReservation = new kvaccine.external.Reservation();
         externalReservation.setUserName(reservation.getUserName());
-        externalReservation.setUserRedNumber(reservation.getUserRedNumber());
+        externalReservation.setUserRegNumber(reservation.getUserRegNumber());
         ArrayList<ReserveDate> dateList = UserApplication.applicationContext.getBean(kvaccine.external.ReservationService.class).dateRequest(externalReservation);
 		return ResponseEntity.ok(dateList);
 	}
@@ -56,9 +56,9 @@ public class UserController {
 		foundUser.setModifyDate(dateStr);
 		foundUser.setReserveStatus("CANCEL");
 		
-		userRepository.save(user);
+		userRepository.save(foundUser);
 		
-		return ResponseEntity.ok(user);
+		return ResponseEntity.ok(foundUser);
 	}
 	
 

@@ -1,15 +1,16 @@
 package kvaccine;
 
-public class ReservationRequested extends AbstractEvent {
+public class HospitalReservationCancelled extends AbstractEvent {
 
     private Long id;
     private Long userId;
+    private String vaccineType;
     private String userName;
     private String userRegNumber;
-    private String reserveDate;
     private String reserveStatus;
+    private String cancelDate;
 
-    public ReservationRequested(){
+    public HospitalReservationCancelled(){
         super();
     }
 
@@ -20,22 +21,6 @@ public class ReservationRequested extends AbstractEvent {
     public void setId(Long id) {
         this.id = id;
     }
-    
-    public String getUserName() {
-        return userName;
-    }
-
-    public void setUserName(String userName) {
-        this.userName = userName;
-    }
-    
-    public String getReserveDate() {
-        return reserveDate;
-    }
-
-    public void setReserveDate(String reserveDate) {
-        this.reserveDate = reserveDate;
-    }
 
 	public Long getUserId() {
 		return userId;
@@ -43,6 +28,30 @@ public class ReservationRequested extends AbstractEvent {
 
 	public void setUserId(Long userId) {
 		this.userId = userId;
+	}
+
+	public String getVaccineType() {
+		return vaccineType;
+	}
+
+	public void setVaccineType(String vaccineType) {
+		this.vaccineType = vaccineType;
+	}
+
+	public String getUserName() {
+		return userName;
+	}
+
+	public void setUserName(String userName) {
+		this.userName = userName;
+	}
+
+	public String getCancelDate() {
+		return cancelDate;
+	}
+
+	public void setCancelDate(String cancelDate) {
+		this.cancelDate = cancelDate;
 	}
 
 	public String getReserveStatus() {
@@ -60,4 +69,7 @@ public class ReservationRequested extends AbstractEvent {
 	public void setUserRegNumber(String userRegNumber) {
 		this.userRegNumber = userRegNumber;
 	}
+    
+	
+    
 }

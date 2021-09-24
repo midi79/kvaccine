@@ -4,7 +4,7 @@ public class Reservation {
 
     private Long id;
     private String userName;
-    private String userRedNumber;
+    private String userRegNumber;
     private String reserveDate;
     private String reserveStatus;
     private String cancelDate;
@@ -22,12 +22,7 @@ public class Reservation {
     public void setUserName(String userName) {
         this.userName = userName;
     }
-    public String getUserRedNumber() {
-        return userRedNumber;
-    }
-    public void setUserRedNumber(String userRedNumber) {
-        this.userRedNumber = userRedNumber;
-    }
+
     public String getReserveDate() {
         return reserveDate;
     }
@@ -52,5 +47,11 @@ public class Reservation {
     public void setUserId(Long userId) {
         this.userId = userId;
     }
+	public String getUserRegNumber() {
+		return userRegNumber;
+	}
+	public void setUserRegNumber(String userRegNumber) {
+		this.userRegNumber = userRegNumber;
+	}
 
 }

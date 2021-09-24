@@ -10,40 +10,23 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class PolicyHandler{
-    @Autowired UserRepository userRepository;
+    
+	@Autowired 
+    UserRepository userRepository;
 
-    @StreamListener(KafkaProcessor.INPUT)
-    public void wheneverDateRequested_UpdateDate(@Payload DateRequested dateRequested){
-
-        if(!dateRequested.validate()) return;
-
-        System.out.println("\n\n##### listener UpdateDate : " + dateRequested.toJson() + "\n\n");
-
-
-
-        // Sample Logic //
-        // User user = new User();
-        // userRepository.save(user);
-
-    }
     @StreamListener(KafkaProcessor.INPUT)
     public void wheneverVaccineInjected_UpdateDate(@Payload VaccineInjected vaccineInjected){
 
         if(!vaccineInjected.validate()) return;
-
         System.out.println("\n\n##### listener UpdateDate : " + vaccineInjected.toJson() + "\n\n");
 
+        User user = userRepository.findById(vaccineInjected.getUserId()).orElse(null);
+        user.setReserveStatus("INJECT");
+        user.setInjectDate(vaccineInjected.getInjectDate());
+        user.setVaccineType(vaccineInjected.getVaccineType());
 
-
-        // Sample Logic //
-        // User user = new User();
-        // userRepository.save(user);
+        userRepository.save(user);
 
     }
-
-
-    @StreamListener(KafkaProcessor.INPUT)
-    public void whatever(@Payload String eventString){}
-
 
 }
