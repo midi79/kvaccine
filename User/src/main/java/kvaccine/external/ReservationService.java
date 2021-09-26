@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
-@FeignClient(name="Reservation", url="${api.url.pay}")
+@FeignClient(name="Reservation", url="${api.url.reservation}")
 public interface ReservationService {
 	
     @RequestMapping(method= RequestMethod.GET, path="/date")

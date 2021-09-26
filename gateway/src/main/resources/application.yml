@@ -48,23 +48,23 @@ spring:
     gateway:
       routes:
         - id: User
-          uri: http://User:8080
+          uri: http://user:8080
           predicates:
             - Path=/user/** 
         - id: Dashboard
-          uri: http://Dashboard:8080
+          uri: http://dashboard:8080
           predicates:
             - Path= /dashboard/**
         - id: Reservation
-          uri: http://Reservation:8080
+          uri: http://reservation:8080
           predicates:
             - Path=/reservation/** 
         - id: Hospital
-          uri: http://Hospital:8080
+          uri: http://hospital:8080
           predicates:
             - Path=/hospital/** 
         - id: VaccineStock
-          uri: http://VaccineStock:8080
+          uri: http://stock:8080
           predicates:
             - Path=/stock/** 
       globalcors:
