@@ -155,7 +155,7 @@
 
 ### 바운디드 컨텍스트로 묶기
 
-<img width="1477" alt="2021-09-26 오후 11 47 26" src="https://user-images.githubusercontent.com/19512435/134812935-5b433e36-bd0d-47c6-a15d-31ddca3c4312.png">
+<img width="1588" alt="2021-09-26 오후 11 53 26" src="https://user-images.githubusercontent.com/19512435/134813019-85d8580b-ab8e-40da-8caa-ab2989c538ea.png">
 
     - 도메인 서열 분리 
       - Core Domain:  User, Reservation : 없어서는 안될 핵심 서비스이며, 연견 Up-time SLA 수준을 99.999% 목표, 배포주기는 의 경우 1주일 1회 미만
