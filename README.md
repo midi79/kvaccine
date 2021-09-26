@@ -116,41 +116,42 @@
 
 ## AS-IS 조직 (Horizontally-Aligned)
 
-<img width="1130" alt="2021-09-12 8 55 49" src="https://user-images.githubusercontent.com/89987635/132986657-418ebe58-2158-4f9e-a237-0bf980efb050.png">
+<img width="993" alt="2021-09-26 오후 10 50 33" src="https://user-images.githubusercontent.com/19512435/134810764-5616455b-7595-49cc-b432-b06a59be22bb.png">
 
 ## TO-BE 조직 (Vertically-Aligned)
 
-<img width="1093" alt="2021-09-12 11 13 12" src="https://user-images.githubusercontent.com/89987635/132991004-2fdfb1de-977f-4a64-8bf8-34d24f29c7e4.png">
+<img width="1061" alt="2021-09-26 오후 11 13 29" src="https://user-images.githubusercontent.com/19512435/134811479-f62a4d5e-0aa2-4f93-aa98-da761cd24a19.png">
 
 
 ## Event Storming 결과
 
-* MSAEz 로 모델링한 이벤트스토밍 결과: https://labs.msaez.io/#/storming/zm7538qsNkhoDMQ3F0AUMpn1wHS2/8e220fa460d7f3692354e798ad599a22
+* MSAEz 로 모델링한 이벤트스토밍 결과: https://labs.msaez.io/#/storming/zm7538qsNkhoDMQ3F0AUMpn1wHS2/55846bc4b600d1b3e4bad09a58d4ca28
 
 
 ### 이벤트 도출
 
-<img width="1371" alt="2021-09-12 11 42 52" src="https://user-images.githubusercontent.com/89987635/132992113-eb9523cb-26be-4923-ac26-e79c145bdb60.png">
+<img width="1302" alt="2021-09-26 오후 11 24 45" src="https://user-images.githubusercontent.com/19512435/134811932-5e425738-9f33-4f0d-8198-563c7a95644d.png">
 
 ### 부적격 이벤트 탈락
 
-<img width="1371" alt="2021-09-12 11 43 07" src="https://user-images.githubusercontent.com/89987635/132992128-33fbe62e-2590-42e8-b05f-746ff75d9b95.png">
+<img width="1302" alt="2021-09-26 오후 11 24 54" src="https://user-images.githubusercontent.com/19512435/134811934-32e163f3-9aa6-404b-9976-3d66783d8e38.png">
 
 - 과정중 도출된 잘못된 도메인 이벤트들을 걸러내는 작업을 수행함
-- 예약시> 상품이 조회됨 :  UI 의 이벤트이지, 업무적인 의미의 이벤트가 아니라서 제외
-- 결제시 > 결제 승인 및 승인 거부 : 외부 시스템의 이벤트이므로 제외
-- Store > 상품이 입고됨 : Event 수신 후 Policy hander 처리 대상
-- Supplier > 출고가 취소됨 : 구현 범위 밖이라 제외, Supplier는 상품 출고 이력만 관리
+- 날짜가 조회됨 : UI 의 이벤트이지, 업무적인 의미의 이벤트가 아니라서 제외
+- 예약시 > 병원이 선택됨 : 구현 범위 밖이라 제외, 병원은 단일 관리
+- 예약시 > 예약이 거부됨 : 예약 거부의 경우 예약 가능 날짜에서 이미 필터링되는 걸로 가정함
+- Vaccine Stock > 백신이 출고됨 : 해당 이벤트 수신 모듈이 없어서 제외함, Vaccine Stock은 백신 입출고 이력만 관리
+- Vaccine Stock > 출고가 취소됨 : 해당 이벤트 수신 모듈이 없어서 제외함, Vaccine Stock은 백신 입출고 이력만 관리
 
 ### 액터, 커맨드 부착하여 읽기 좋게
 
-<img width="1426" alt="2021-09-13 9 28 38" src="https://user-images.githubusercontent.com/89987635/133083587-d80e62bc-4e4e-486e-8a05-c44152bc5ec3.png">
+<img width="1251" alt="2021-09-26 오후 11 38 03" src="https://user-images.githubusercontent.com/19512435/134812401-de3afcd3-37bb-486a-aa1d-27e687671468.png">
 
 ### 어그리게잇으로 묶기
 
-<img width="1500" alt="2021-09-13 10 01 42" src="https://user-images.githubusercontent.com/89987635/133088250-5f0c17ed-37ca-412d-9057-48c4ee99a085.png">
+<img width="1477" alt="2021-09-26 오후 11 47 26" src="https://user-images.githubusercontent.com/19512435/134812703-057d7cce-6b8f-4321-bace-a6354fb1f666.png">
 
-- Reservation의 예약과 취소, Pay의 결제 요청, 결제 취소, Store의 상품 주문, 상품 픽업, 예약, 예약 취소, Supplier의 상품 출고의 command와 event 들에 의하여 트랜잭션이 유지되어야 하는 단위로 그들 끼리 묶어줌
+- User의 날짜 조회, 예약과 취소, Reservation의 예약 요청, 예약 취소, Hospital의 접종, 예약, 예약 취소, VaccineStock의 백신 증가, 백신 감소 command와 event 들에 의하여 트랜잭션이 유지되어야 하는 단위로 그들 끼리 묶어줌
 
 ### 바운디드 컨텍스트로 묶기
 
