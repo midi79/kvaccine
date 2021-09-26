@@ -155,12 +155,12 @@
 
 ### 바운디드 컨텍스트로 묶기
 
-<img width="1475" alt="2021-09-13 10 02 53" src="https://user-images.githubusercontent.com/89987635/133088393-55762696-6012-4e8e-8211-cba34cde5064.png">
+<img width="1477" alt="2021-09-26 오후 11 47 26" src="https://user-images.githubusercontent.com/19512435/134812935-5b433e36-bd0d-47c6-a15d-31ddca3c4312.png">
 
     - 도메인 서열 분리 
-      - Core Domain:  Reservation, Store : 없어서는 안될 핵심 서비스이며, 연견 Up-time SLA 수준을 99.999% 목표, 배포주기는 의 경우 1주일 1회 미만
-      - Supporting Domain: Supplier : 경쟁력을 내기위한 서비스이며, SLA 수준은 연간 60% 이상 uptime 목표, 배포주기는 1주일 1회 이상을 기준으로 함.
-      - General Domain: PayHistory : 결제서비스로 3rd Party 외부 서비스를 사용하는 것이 경쟁력이 높음
+      - Core Domain:  User, Reservation : 없어서는 안될 핵심 서비스이며, 연견 Up-time SLA 수준을 99.999% 목표, 배포주기는 의 경우 1주일 1회 미만
+      - Supporting Domain: Hospital : 경쟁력을 내기위한 서비스이며, SLA 수준은 연간 60% 이상 uptime 목표, 배포주기는 1주일 1회 이상을 기준으로 함.
+      - General Domain: VaccineStock : 백신 재고 관리 시스템으로 ERP 솔루션 등 3rd Party 외부 서비스를 사용하는 것이 경쟁력이 높음
 
 ### 폴리시 부착 (괄호는 수행주체, 전체 연계가 초기에 드러남)
 
