@@ -86,9 +86,6 @@ phases:
                       requests:
                         cpu: 500m
                         memory: 300Mi
-                    volumeMounts:
-                      - mountPath: "/mnt/aws"
-                        name: volume
                     readinessProbe:
                       httpGet:
                         path: /actuator/health
