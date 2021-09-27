@@ -164,11 +164,11 @@
 
 ### 폴리시 부착 (괄호는 수행주체, 전체 연계가 초기에 드러남)
 
-<img width="1551" alt="2021-09-13 10 47 23" src="https://user-images.githubusercontent.com/89987635/133095353-70d645ff-a7db-4662-abf4-47358c10375c.png">
+<img width="1838" alt="2021-09-27 오후 11 20 57" src="https://user-images.githubusercontent.com/19512435/134927268-300e7d7c-ca92-4f7f-8964-c478eb2f2261.png">
 
 ### 폴리시의 이동과 컨텍스트 매핑 (점선은 Pub/Sub, 실선은 Req/Resp)
 
-<img width="1498" alt="2021-09-13 10 49 08" src="https://user-images.githubusercontent.com/89987635/133095646-180e389d-f301-41b0-b8ba-c365944e4287.png">
+<img width="1813" alt="2021-09-27 오후 11 36 29" src="https://user-images.githubusercontent.com/19512435/134930094-e396970f-4a31-4bfe-9aab-4a2f0251e385.png">
 
 ### 완성된 1차 모형
 
