@@ -44,6 +44,10 @@ logging:
   level:
     org.hibernate.type: trace
     org.springframework.cloud: debug
+
+vaccine:
+  type: Pfizer0,Moderna0,Janssen0,AstraZeneca0    
+    
 server:
   port: 8084
 ---
@@ -84,7 +88,10 @@ spring:
     driver-class-name: org.h2.Driver
     url: jdbc:h2:mem:testdb
     username: sa
-    password:             
+    password:            
+     
+vaccine:
+  type: ${VACCINE_TYPE}
 
 server:
   port: 8080 #for cloud                

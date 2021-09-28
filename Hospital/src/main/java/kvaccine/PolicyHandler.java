@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.stream.annotation.StreamListener;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Service;
@@ -16,12 +17,20 @@ public class PolicyHandler {
     @Autowired 
     HospitalRepository hospitalRepository;
    
-    // configMap으로 변경 
-    String[] vaccines = {"Pfizer", "Moderna", "Janssen", "AstraZeneca"};
-    ArrayList<String> vaccineTypeList = new ArrayList<>(Arrays.asList(vaccines));
-
+    @Value("${vaccine.type}")
+    String vaccineType;
+    
+    String[] vaccines;
+    
     @StreamListener(KafkaProcessor.INPUT)
     public void wheneverReservationRequested_Reserve(@Payload ReservationRequested reservationRequested){
+    	
+    	if (vaccineType != null) {
+    		vaccines = vaccineType.split(",");
+    	} 
+    	
+        ArrayList<String> vaccineTypeList = new ArrayList<>(Arrays.asList(vaccines));
+
 
         if(!reservationRequested.validate()) return;
         System.out.println("\n\n##### listener Hospital ReservationRequested : " + reservationRequested.toJson() + "\n\n");

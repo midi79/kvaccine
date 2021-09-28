@@ -79,6 +79,12 @@ phases:
                     image: $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$_PROJECT_NAME:$CODEBUILD_RESOLVED_SOURCE_VERSION
                     ports:
                       - containerPort: 8080
+                    env:
+                    - name: VACCINE_TYPE
+                      valueFrom:
+                        configMapKeyRef:
+                          name: vaccine-type
+                          key: type
                     readinessProbe:
                       httpGet:
                         path: /actuator/health
