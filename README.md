@@ -172,47 +172,51 @@
 
 ### 완성된 1차 모형
 
-<img width="1469" alt="2021-09-13 11 00 17" src="https://user-images.githubusercontent.com/89987635/133097409-073c5768-bfd9-4688-a0c7-3da74e4463a2.png">
+<img width="1530" alt="2021-09-29 오후 9 30 14" src="https://user-images.githubusercontent.com/19512435/135268625-6841e3d5-78c5-45a0-9957-451a05543a28.png">
 
     - View Model 추가
 
 ### 1차 완성본에 대한 기능적/비기능적 요구사항을 커버하는지 검증
 
-<img width="1448" alt="2021-09-13 11 11 59" src="https://user-images.githubusercontent.com/89987635/133099363-2a033cc6-8d97-4751-b9e9-424cf316ec3f.png">
+<img width="1530" alt="2021-09-29 오후 9 34 08" src="https://user-images.githubusercontent.com/19512435/135269154-40a33b0a-2a41-495a-a566-46b5241c4b4b.png">
 
-    - 점장은 상품을 주문한다 (ok)
-    - Supplier는 제품을 배송한다 (ok)
-    - 배송이 되면 상품 갯수가 늘어난다 (ok) 
+    - 사용자가 이름과 주민번호를 입력하여 백신 예약 가능 날짜를 조회한다 (ok)
 
-<img width="1430" alt="2021-09-13 11 23 30" src="https://user-images.githubusercontent.com/89987635/133101159-d8ca7260-7063-4bdb-99c4-37ec8a027077.png">
+<img width="1530" alt="2021-09-29 오후 9 49 10" src="https://user-images.githubusercontent.com/19512435/135271498-388cab2b-2ebe-4281-ba3b-8f149def9797.png">
 
-    - 고객은 상품 목록을 조회한다 (ok)
-    - 고객은 상품을 예약한다 (ok)
-    - 고객이 예약한 상품을 결제한다 (ok)
-    - 고객이 방문하여 예약한 상품을 찾아간다 (ok)
-    - 찾아간 상품에 대한 예약은 Pickup으로 표시된다 (ok)
+    - 사용자는 백신 예약 가능 날짜를 선택하여 예약한다 (ok)
+    - 예약이 성공하면 병원에 예약 현황이 통보된다 (ok)
+    - 병원에서는 사용자가 맞을 백신을 랜덤 선택한 후 백신 창고에 예약 정보를 전달한다 (ok)
+    - 백신 창고는 해당 백신 수량을 차감한다 (ok)
 
-<img width="1430" alt="2021-09-13 11 16 05" src="https://user-images.githubusercontent.com/89987635/133099909-cfa99c23-c9d8-4f95-af6c-9a82bea15910.png">
+<img width="1530" alt="2021-09-29 오후 9 51 02" src="https://user-images.githubusercontent.com/19512435/135271779-58b0db72-dbf4-4ff3-81d0-090f1e8066e5.png">
 
-    - 고객은 예약 내역을 취소한다 (ok)
-    - 예약을 취소하면 결제가 취소된다 (ok)
-    - 예약이 취소되면 상품 예약이 취소된다 (ok)
+    - 사용자는 해당 날짜에 병원에 가서 접종을 받는다 (ok)
+    - 접종을 완료하면 사용자 정보가 접종 완료로 업데이트 된다 (ok)
+
+<img width="1530" alt="2021-09-29 오후 9 53 04" src="https://user-images.githubusercontent.com/19512435/135272111-22772293-ab43-432a-8416-0ac6eb6726f4.png">
+
+    - 사용자는 백신 예약을 취소한다 (ok)
+    - 취소된 예약은 병원에 통보된다 (ok)
+    - 병원은 취소된 예약의 백신 정보를 백신 창고로 전달한다 (ok)
+    - 백신 창고는 해당 백신의 수량을 복원한다 (ok)
+
 
 
 ### 비기능 요구사항에 대한 검증
 
-<img width="1430" alt="2021-09-13 11 33 01" src="https://user-images.githubusercontent.com/89987635/133102897-b2ef32d3-e1d9-498c-b868-42dd9d2951fc.png">
+<img width="1530" alt="2021-09-29 오후 9 54 00" src="https://user-images.githubusercontent.com/19512435/135272263-4738fdb8-9bf2-4853-b0b7-9d7f962f1484.png">
 
     - 마이크로 서비스를 넘나드는 시나리오에 대한 트랜잭션 처리
-        - 고객 예약시 결제처리:  ACID 트랜잭션 적용. 예약 완료 시 결제처리에 대해서는 Request-Response 방식 처리
-        - 결제 완료시 Store 연결 :  PayHistory 에서 Store 마이크로서비스로 예약 요청이 전달되는 과정에 있어서 Store 마이크로서비스가 별도의 배포주기를 가지기 때문에 Eventual Consistency 방식으로 트랜잭션 처리함
-        - 나머지 모든 inter-microservice 트랜잭션: 출고 처리, 픽업 완료 등 데이터 일관성의 시점이 크리티컬하지 않은 모든 경우가 대부분이라 판단, Eventual Consistency 를 기본으로 채택함
+        - 접종 가능 날짜 조회 :  ACID 트랜잭션 적용. 접종 가능 날짜 조회의 경우 실시간으로 조회가 필요하여 Request-Response 방식 처리
+        - 예약시 Reservation 연결 :  User 에서 Reservation 마이크로서비스로 예약 요청이 전달되는 과정에 있어서 Reservation 마이크로서비스가 별도의 배포주기를 가지기 때문에 Eventual Consistency 방식으로 트랜잭션 처리함
+        - 나머지 모든 inter-microservice 트랜잭션: Hospital 예약, Stock 처리 등 데이터 일관성의 시점이 크리티컬하지 않은 모든 경우가 대부분이라 판단, Eventual Consistency 를 기본으로 채택함
 
 
 
 ## 헥사고날 아키텍처 다이어그램 도출
     
-<img width="1481" alt="2021-09-13 11 51 17" src="https://user-images.githubusercontent.com/89987635/133106137-c3ff9789-2d0a-4054-acb4-cb0eab362c14.png">
+<img width="1534" alt="2021-09-29 오후 9 57 56" src="https://user-images.githubusercontent.com/19512435/135272859-457274d9-2255-4759-8163-e82c37243ff8.png">
 
 
     - Chris Richardson, MSA Patterns 참고하여 Inbound adaptor와 Outbound adaptor를 구분함
@@ -228,19 +232,19 @@
 cd gateway
 mvn spring-boot:run
 
-cd Store
+cd User
 mvn spring-boot:run 
 
 cd Reservation
 mvn spring-boot:run  
 
-cd Pay
+cd Hospital
 mvn spring-boot:run
 
-cd Supplier
+cd VaccineStock
 mvn spring-boot:run
 
-cd View
+cd Dashboard
 mvn spring-boot:run
 ```
 
@@ -250,159 +254,121 @@ mvn spring-boot:run
 
 ```
 
-package convenience.store;
+package kvaccine;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.PostPersist;
-import javax.persistence.PostUpdate;
-import javax.persistence.PrePersist;
-import javax.persistence.Table;
-
+import javax.persistence.*;
 import org.springframework.beans.BeanUtils;
+import java.util.List;
+import java.util.Date;
 
 @Entity
-@Table(name="Reservation_table")
+@Table(name="reservation_table")
 public class Reservation {
 
-  @Id
-  @GeneratedValue(strategy=GenerationType.AUTO)
-  private Long id;
-  private String status;
-  private String date;
-  private Long productId;
-  private String productName;
-  private Integer productPrice;
-  private Long customerId;
-  private String customerName;
-  private String customerPhone;
-  private Integer qty;
+    @Id
+    @GeneratedValue(strategy=GenerationType.AUTO)
+    private Long id;
+    private Long userId;
+    private String userName;
+    private String userRegNumber;
+    private String reserveDate;
+    private String reserveStatus;
+    private String cancelDate;
 
-  public Long getId() {
-    return id;
-  }
+    public Long getId() {
+        return id;
+    }
 
-  public void setId(Long id) {
-    this.id = id;
-  }
+    public void setId(Long id) {
+        this.id = id;
+    }
+    public String getUserName() {
+        return userName;
+    }
 
-  public String getStatus() {
-    return status;
-  }
+    public void setUserName(String userName) {
+        this.userName = userName;
+    }
 
-  public void setStatus(String status) {
-     this.status = status;
-  }
+    public String getReserveDate() {
+        return reserveDate;
+    }
 
-  public String getDate() {
-     return date;
-  }
+    public void setReserveDate(String reserveDate) {
+        this.reserveDate = reserveDate;
+    }
+    public String getReserveStatus() {
+        return reserveStatus;
+    }
 
-  public void setDate(String date) {
-    this.date = date;
-  }
+    public void setReserveStatus(String reserveStatus) {
+        this.reserveStatus = reserveStatus;
+    }
+    public String getCancelDate() {
+        return cancelDate;
+    }
 
-  public Long getProductId() {
-     return productId;
-  }
+    public void setCancelDate(String cancelDate) {
+        this.cancelDate = cancelDate;
+    }
+    public Long getUserId() {
+        return userId;
+    }
 
-  public void setProductId(Long productId) {
-     this.productId = productId;
-  }
+    public void setUserId(Long userId) {
+        this.userId = userId;
+    }
 
-  public String getProductName() {
-    return productName;
-  }
+    public String getUserRegNumber() {
+	return userRegNumber;
+    }
 
-  public void setProductName(String productName) {
-    this.productName = productName;
-  }
+    public void setUserRegNumber(String userRegNumber) {
+	this.userRegNumber = userRegNumber;
+    }
 
-  public Integer getProductPrice() {
-    return productPrice;
-  }
-
-  public void setProductPrice(Integer productPrice) {
-     this.productPrice = productPrice;
-  }
-
-  public Long getCustomerId() {
-    return customerId;
-  }
-
-  public void setCustomerId(Long customerId) {
-    this.customerId = customerId;
-  }
-
-  public String getCustomerName() {
-    return customerName;
-  }
-
-  public void setCustomerName(String customerName) {
-    this.customerName = customerName;
-  }
-
-  public String getCustomerPhone() {
-    return customerPhone;
-  }
-
-  public void setCustomerPhone(String customerPhone) {
-    this.customerPhone = customerPhone;
-  }
-
-  public Integer getQty() {
-    return qty;
-  }
-
-  public void setQty(Integer qty) {
-      this.qty = qty;
-  }
 }
 
 ```
 - Entity Pattern 과 Repository Pattern 을 적용하여 JPA 를 통하여 다양한 데이터소스 유형 (RDB or NoSQL) 에 대한 별도의 처리가 없도록 데이터 접근 어댑터를 자동 생성하기 위하여 Spring Data REST 의 RestRepository 를 적용하였다
 ```
 
-package convenience.store;
+package kvaccine;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 
-@RepositoryRestResource(collectionResourceRel="products", path="products")
-public interface ProductRepository extends JpaRepository<Product, Long>{
+@RepositoryRestResource(collectionResourceRel="reservations", path="reservations")
+public interface ReservationRepository extends JpaRepository<Reservation, Long>{
 	
-  Product findByProductName(String productName);
-	
+	Reservation findByUserId(Long userId);
+
 }
+
 
 ```
 - 적용 후 REST API 의 테스트 (PostMan 기준)
 ```
 
-# Store 서비스의 입고 주문
-POST http://localhost:8083/product/order
+# 예방 접종 가능 날짜 조회
+POST http://localhost:8080/user/date
 {
-    "productName": "Milk",
-    "productPrice": 1200,
-    "productQty": 2
+    "userName": "Taeyeon Kim",
+    "userRegNumber": "890309-2766876"
 }
 
-# Store 입고 상태 확인
-GET http://localhost:8080/product/list
-
-
-# Reservation 서비스의 예약 주문
-POST http://localhost:8081/reservation/order
+# 백신 예약
+POST http://localhost:8080/user/reserve
 {
-    "productId": 1,
-    "productName": "Milk",
-    "productPrice": 1200,
-    "customerId": 2,
-    "customerName": "Sam",
-    "customerPhone": "010-9837-0279",
-    "qty": 2
+    "userName": "Taeyeon Kim",
+    "userRegNumber": "890309-2766876",
+    "reserveDate":"2021-10-05"
+}
+
+# 백신 접종
+POST http://localhost:8080/hospital/inject
+{
+    "userId": 1
 }
 
 ```
@@ -412,30 +378,27 @@ POST http://localhost:8081/reservation/order
 전체 서비스의 경우 빠른 속도와 개발 생산성을 극대화하기 위해 Spring Boot에서 기본적으로 제공하는 In-Memory DB인 H2 DB를 사용하였다.
 
 ```
-# Product.java
+# User.java
 
-package convenience.store;
+package kvaccine;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.PostUpdate;
-import javax.persistence.Table;
-import javax.persistence.Transient;
-
+import javax.persistence.*;
 import org.springframework.beans.BeanUtils;
 
 @Entity
-@Table(name="product_table")
-public class Product {
+@Table(name="user_table")
+public class User {
 
     @Id
-    @GeneratedValue(strategy=GenerationType.AUTO) // H2 DB의 경우 ID가 sequence 기준으로 순차적으로 채번된다
+    @GeneratedValue(strategy=GenerationType.AUTO)
     private Long id;
-    private String productName;
-    private Integer productPrice;
-    private Integer productQty;
+    private String userName;
+    private String userRegNumber;
+    private String reserveStatus;
+    private String reserveDate;
+    private String modifyDate;
+    private String injectDate;
+    private String vaccineType;
     
 
 # application.yml
@@ -455,7 +418,7 @@ public class Product {
 
 ## 폴리글랏 프로그래밍
 
-View 서비스(dashboard)의 경우 다른 서비스와 다르게 HSQL DB를 사용하였다.
+Dashboard 서비스의 경우 다른 서비스와 다르게 HSQL DB를 사용하였다.
 
 ```
 
@@ -472,114 +435,80 @@ View 서비스(dashboard)의 경우 다른 서비스와 다르게 HSQL DB를 사
 
 ## 동기식 호출 과 Fallback 처리
 
-분석단계에서의 조건 중 하나로 예약(reservation)->결제(pay) 간의 호출은 동기식 일관성을 유지하는 트랜잭션으로 처리하기로 하였다. 호출 프로토콜은 이미 앞서 Rest Repository 에 의해 노출되어있는 REST 서비스를 FeignClient 를 이용하여 호출하도록 한다. 
+분석단계에서의 조건 중 하나로 예약 날짜 조회(User)-> 조회(Reservation) 간의 호출은 동기식 일관성을 유지하는 트랜잭션으로 처리하기로 하였다. 호출 프로토콜은 이미 앞서 Rest Repository 에 의해 노출되어있는 REST 서비스를 FeignClient 를 이용하여 호출하도록 한다. 
 
 - 결제 서비스를 호출하기 위하여 Stub과 (FeignClient) 를 이용하여 Service 대행 인터페이스 (Proxy) 를 구현 
 
 ```
 
-# (Reservation) 
+# ReservationService.java
+package kvaccine.external;
 
-package convenience.store.external;
-
-@FeignClient(name="pay", url="${api.url.pay}", fallback = PayHistoryServiceImpl.class)
-public interface PayHistoryService {
+@FeignClient(name="Reservation", url="${api.url.reservation}", fallback = ReservationServiceImpl.class)
+public interface ReservationService {
 	
-  @RequestMapping(method= RequestMethod.POST, path="/request")
-  public boolean request(@RequestBody PayHistory payHistory);
+    @RequestMapping(method= RequestMethod.GET, path="/date")
+    public ArrayList<ReserveDate> dateRequest(@RequestBody Reservation reservation);
 
 }
 
 ```
 
-- 예약 직후(@PostPersist) 결제를 요청하도록 처리
+- 예약 직후(@PostPersist) 병원 예약을 요청하도록 처리
 ```
 
 # Reservation.java (Entity)
 
-  @PostPersist
-  public void onPostPersist() {
-
-    convenience.store.external.PayHistory payHistory = new convenience.store.external.PayHistory();
-
-    payHistory.setPayStatus(this.status);
-    payHistory.setReserveStatus("RESERVE");
-    payHistory.setReserveId(this.id);
-    payHistory.setCustomerId(this.customerId);
-    payHistory.setCustomerName(this.customerName);
-    payHistory.setCustomerPhone(this.customerPhone);
-    payHistory.setDate(this.date);
-    payHistory.setReserveDate(this.date);
-    payHistory.setProductId(this.productId);
-    payHistory.setProductPrice(this.productPrice);
-    payHistory.setReserveQty(this.qty);
-
-    boolean result = ReservationApplication.applicationContext.getBean(convenience.store.external.PayHistoryService.class).request(payHistory);
-
-  }
+    @PostPersist
+    public void onPostPersist() {    	
+    	if (this.reserveStatus.equals("RESERVE")) {
+            ReservationRequested reservationRequested = new ReservationRequested();
+            BeanUtils.copyProperties(this, reservationRequested);
+            reservationRequested.publishAfterCommit();    		
+    	} 
+    }
 
 ```
 
-- 동기식 호출에서는 호출 시간에 따른 타임 커플링이 발생하며, 결제 시스템이 장애가 나면 예약도 불가하다는 것을 확인:
-
+- 동기식 호출에서는 호출 시간에 따른 타임 커플링이 발생하며, 예약 시스템이 장애가 나면 날짜 조회도 불가하다는 것을 확인:
 
 ```
-# 결제 (Pay) 서비스를 잠시 내려놓음 (ctrl+c)
+# Reservation 서비스를 잠시 내려놓음 (ctrl+c)
 
-# 예약처리
-POST http://localhost:8081/reservation/order   #Fail
+# 접종 가능 날짜 조회
+POST http://localhost:8080/user/date          #Fail
 {
-    "productId": 1,
-    "productName": "Milk",
-    "productPrice": 1200,
-    "customerId": 2,
-    "customerName": "Sam",
-    "customerPhone": "010-9837-0279",
-    "qty": 2
+    "userName": "Taeyeon Kim",
+    "userRegNumber": "890309-2766876"
 }
 
-POST http://localhost:8081/reservation/order   #Fail
+POST http://localhost:8080/user/date          #Fail
 {
-    "productId": 2,
-    "productName": "Snack",
-    "productPrice": 1500,
-    "customerId": 2,
-    "customerName": "Sam",
-    "customerPhone": "010-9837-0279",
-    "qty": 5
+    "userName": "Jieun Lee",
+    "userRegNumber": "930619-2352628"
 }
 
 
-#결제서비스 재기동
-cd Pay
+#예약서비스 재기동
+cd Reservation
 mvn spring-boot:run
 
-# 예약처리
-POST http://localhost:8081/reservation/order   #Success
+# 접종 가능 날짜 조회
+POST http://localhost:8080/user/date          #Success
 {
-    "productId": 1,
-    "productName": "Milk",
-    "productPrice": 1200,
-    "customerId": 2,
-    "customerName": "Sam",
-    "customerPhone": "010-9837-0279",
-    "qty": 2
+    "userName": "Taeyeon Kim",
+    "userRegNumber": "890309-2766876"
 }
 
-POST http://localhost:8081/reservation/order   #Success
+POST http://localhost:8080/user/date          #Success
 {
-    "productId": 2,
-    "productName": "Snack",
-    "productPrice": 1500,
-    "customerId": 2,
-    "customerName": "Sam",
-    "customerPhone": "010-9837-0279",
-    "qty": 5
+    "userName": "Jieun Lee",
+    "userRegNumber": "930619-2352628"
 }
 
 ```
 
-- 또한 과도한 예약 요청시에 서비스 장애가 도미노 처럼 벌어질 수 있다. (서킷브레이커, 폴백 처리는 운영단계에서 설명한다.)
+- 또한 과도한 가능 날짜 요청시에 서비스 장애가 도미노 처럼 벌어질 수 있다. (서킷브레이커, 폴백 처리는 운영단계에서 설명한다.)
 
 
 
@@ -587,260 +516,245 @@ POST http://localhost:8081/reservation/order   #Success
 ## 비동기식 호출 / 시간적 디커플링 / 장애격리 / 최종 (Eventual) 일관성 테스트
 
 
-결제가 이루어진 후에 Store 서비스로 이를 알려주는 행위는 동기식이 아니라 비동기식으로 처리하여 Store 서비스의 처리를 위하여 결제가 블로킹 되지 않아도록 처리한다.
+예약이 이루어진 후에 Hospital 서비스로 이를 알려주는 행위는 동기식이 아니라 비동기식으로 처리하여 Hospital 서비스의 처리를 위하여 결제가 블로킹 되지 않아도록 처리한다.
  
-- 이를 위하여 결제 이력에 기록을 남긴 후에 곧바로 결제 요청이 되었다는 도메인 이벤트를 카프카로 송출한다. (Publish)
+- 이를 위하여 예약 이력을 저장 후에 곧바로 예약 완료가 되었다는 도메인 이벤트를 카프카로 송출한다. (Publish)
   이때 다른 저장 로직에 의해서 해당 이벤트가 발송되는 것을 방지하기 위해 Status 체크하는 로직을 추가했다.
  
 ```
 
-package convenience.store;
+package kvaccine;
+
+import javax.persistence.*;
+import org.springframework.beans.BeanUtils;
+import java.util.List;
+import java.util.Date;
 
 @Entity
-@Table(name="payhistory_table")
-public class PayHistory {
-
-    ...
+@Table(name="reservation_table")
+public class Reservation {
 
     @PostPersist
-    public void onPostPersist() {
-      if(this.reserveStatus.equals("RESERVE")) {
-        PayRequested payRequested = new PayRequested();
-    	BeanUtils.copyProperties(this, payRequested);    		
-    	payRequested.publishAfterCommit();
-
-        payRequested.saveJasonToPvc(payRequested.toJson());
-
-      }
+    public void onPostPersist() {    	
+    	if (this.reserveStatus.equals("RESERVE")) {
+            ReservationRequested reservationRequested = new ReservationRequested();
+            BeanUtils.copyProperties(this, reservationRequested);
+            reservationRequested.publishAfterCommit();    		
+    	} 
     }
 
 ```
-- 상점 서비스에서는 결제승인 이벤트에 대해서 이를 수신하여 자신의 정책을 처리하도록 PolicyHandler 를 구현한다:
+- Hospital 서비스에서는 결재 완료 이벤트에 대해서 이를 수신하여 자신의 정책을 처리하도록 PolicyHandler 를 구현한다:
 
 ```
-package convenience.store;
+package kvaccine;
 
 ...
 
 @Service
 public class PolicyHandler {
+	
+    ...
+    
+    @StreamListener(KafkaProcessor.INPUT)
+    public void wheneverReservationRequested_Reserve(@Payload ReservationRequested reservationRequested){
+    	
+    	if (vaccineType != null) {
+    		vaccines = vaccineType.split(",");
+    	} 
+    	
+        ArrayList<String> vaccineTypeList = new ArrayList<>(Arrays.asList(vaccines));
 
-  ...
-  
-  @StreamListener(KafkaProcessor.INPUT)
-  public void wheneverPayRequested_Reserve(@Payload PayRequested payRequested){
 
-    if(!payRequested.validate()) return;
-    System.out.println("\n\n##### listener Reserve : " + payRequested.toJson() + "\n\n");
+        if(!reservationRequested.validate()) return;
+        System.out.println("\n\n##### listener Hospital ReservationRequested : " + reservationRequested.toJson() + "\n\n");
+       
+        Hospital hospital = new Hospital();
+        hospital.setHospitalName("Korean Hospital");
+        hospital.setUserId(reservationRequested.getUserId());
+        hospital.setUserName(reservationRequested.getUserName());
+        hospital.setUserRegNumber(reservationRequested.getUserRegNumber());
+        hospital.setReserveDate(reservationRequested.getReserveDate());
+        hospital.setReserveStatus(reservationRequested.getReserveStatus());
         
-    StoreReservation storeReservation = new StoreReservation();
-    BeanUtils.copyProperties(payRequested, storeReservation);
-    storeReservationRepository.save(storeReservation);
+        String vaccineType = vaccineTypeList.get(((int)(Math.random() * 10)) % 4);
+        hospital.setVaccineType(vaccineType);
         
-    // 예약이 되면 상품의 보유 갯수를 줄여준다  
-    Product product = productRepository.findById(payRequested.getProductId()).orElseThrow(null);
-    product.setProductQty(product.getProductQty() - payRequested.getReserveQty());
-    productRepository.save(product);
-        
-  }
+        hospitalRepository.save(hospital);
+
+    }
 
 ```
-실제 구현을 하자면, 결제가 완료된 이후에 카톡 알림을 통해 예약이 완료되었다는 외부 이벤트를 보내고, 점장은 예약 상태를 Dashboard를 통해 확인할 수 있다.
+실제 구현을 하자면, 병원 예약이 완료된 이후에 카톡 알림을 통해 예약이 완료되었다는 외부 이벤트를 보내고, 사용자는 예약 상태를 Dashboard를 통해 확인할 수 있다.
   
 ```
 
-# 결제 성공시 카톡 메세지 전송
+# 병원 예약 완료시 카톡 메세지 전송
 
-  @PostPersist
-  public void onPostPersist() {
-
-  convenience.store.external.PayHistory payHistory = new convenience.store.external.PayHistory();
-
-  boolean result = ReservationApplication.applicationContext.getBean(convenience.store.external.PayHistoryService.class).request(payHistory);
-
-  if(result) {
-    System.out.println("########## 결제가 완료되었습니다 ############");
-    // 결제 성공 카톡 메세지 발송
-  } else {
-    System.out.println("########## 결제가 실패하였습니다 ############");
-    // 결제 실패 카톡 메세지 발송
-  }    	
-
-}
+    @PostPersist
+    public void onPostPersist() {
+    	if (this.reserveStatus.equals("RESERVE")) {
+            HospitalReservationReceived hospitalReservationReceived = new HospitalReservationReceived();
+            BeanUtils.copyProperties(this, hospitalReservationReceived);
+            hospitalReservationReceived.publishAfterCommit();
+            
+            // 병원 예약 완료 카톡 메세지 발송
+            
+    	}
+    }
 
 # 예약 현황을 Dashboard에서 확인
 
-GET http://localhost:8084/dashboard/list
+GET http://localhost:8080/dashboard/list
 
 ```
 
-Store 서비스는 예약/결제와 완전히 분리되어있으며, 이벤트 수신에 따라 처리되기 때문에, Store 서비스를 유지보수로 인해 잠시 내려간 상태라도 예약을 받는데 문제가 없다:
+Hospital 서비스는 User, Reservation과 완전히 분리되어있으며, 이벤트 수신에 따라 처리되기 때문에, Hospital 서비스를 유지보수로 인해 잠시 내려간 상태라도 예약을 받는데 문제가 없다:
 ```
-# Store 서비스 를 잠시 내려놓음 (ctrl+c)
+# Hospital 서비스 를 잠시 내려놓음 (ctrl+c)
 
-#예약처리
-POST http://localhost:8081/reservation/order   #Success
+# 백신 예약
+POST http://localhost:8080/user/reserve       #Success
 {
-    "productId": 1,
-    "productName": "Milk",
-    "productPrice": 1200,
-    "customerId": 2,
-    "customerName": "Sam",
-    "customerPhone": "010-9837-0279",
-    "qty": 2
+    "userName": "Taeyeon Kim",
+    "userRegNumber": "890309-2766876",
+    "reserveDate":"2021-10-05"
 }
 
-POST http://localhost:8081/reservation/order   #Success
+POST http://localhost:8080/user/reserve       #Success
 {
-    "productId": 2,
-    "productName": "Snack",
-    "productPrice": 1500,
-    "customerId": 2,
-    "customerName": "Sam",
-    "customerPhone": "010-9837-0279",
-    "qty": 5
+    "userName": "Jieun Lee",
+    "userRegNumber": "930619-2377821",
+    "reserveDate":"2021-10-05"
 }
 
-#예약상태 확인
-GET http://localhost:8081/reservation/list     # 예약상태 조회 가능
+# 예약 상태 확인
+GET http://localhost:8080/dashboard/list     # 예약상태 조회 가능
 
-#상점 서비스 기동
-cd Store
+# Hospital 서비스 기동
+cd Hospital
 mvn spring-boot:run
 
-#주문상태 확인
-GET http://localhost:8083/product/list     # 상품의 갯수가 예약한 갯수만큼 줄어듬
+# 예약 상태 확인
+GET http://localhost:8080/dashboard/list     # 예약상태 조회 가능 (데이터 변경 없음)
 
 ```
 
 ## Correlation (보상패턴) 구현
 
-결제 승인시 상품의 갯수를 차감하고, 결제 취소시 상품의 갯수를 원복해준다.
+예약 완료시 백신의 재고 갯수를 차감하고, 예약 취소시 백신의 갯수를 원복해준다. (구현 난이도를 낮추기 위해 단순 -, + 이력 처리)
 
 ```
-@StreamListener(KafkaProcessor.INPUT)
-public void wheneverPayRequested_Reserve(@Payload PayRequested payRequested){
+    @StreamListener(KafkaProcessor.INPUT)
+    public void wheneverReservationReceived_Reserve(@Payload HospitalReservationReceived reservationReceived) {
 
-  ...
+        if(!reservationReceived.validate()) return;
+        System.out.println("\n\n##### listener Reserve : " + reservationReceived.toJson() + "\n\n");
+
+        VaccineStock stock = new VaccineStock();
+        stock.setVaccineType(reservationReceived.getVaccineType());
+        stock.setVaccineCount(-1);
         
-    // 예약이 되면 상품의 보유 갯수를 줄여준다  
-    Product product = productRepository.findById(payRequested.getProductId()).orElseThrow(null);
-    product.setProductQty(product.getProductQty() - payRequested.getReserveQty());
-    productRepository.save(product);
-        
-}
-    
-    
-@StreamListener(KafkaProcessor.INPUT)
-public void wheneverPayCancelled_ReservationCancel(@Payload PayCancelled payCancelled){
+        vaccineStockRepository.save(stock);
 
-    ...
-       
-    // 예약이 취소되는 상품의 보유 갯수를 늘려준다 
-    Product product = productRepository.findById(payCancelled.getProductId()).orElseThrow(null);
-    product.setProductQty(product.getProductQty() + payCancelled.getReserveQty());
-    productRepository.save(product);
+    }
+    
+    @StreamListener(KafkaProcessor.INPUT)
+    public void wheneverReservationCancelled_Cancel(@Payload HospitalReservationCancelled reservationCancelled){
 
-}
+        if(!reservationCancelled.validate()) return;
+        System.out.println("\n\n##### listener Cancel : " + reservationCancelled.toJson() + "\n\n");
+
+        VaccineStock stock = new VaccineStock();
+        stock.setVaccineType(reservationCancelled.getVaccineType());
+        stock.setVaccineCount(1);
+        vaccineStockRepository.save(stock);
+
+    }
 
 ```
 
 ## CQRS 패턴 구현
 
-예약과 픽업, 결제 취소에 대한 현황을 Dashboard로 구현하여 조회할 수 있게 제공
-현재 예약 현황과 사용자별 예약 리스트를 조회할 수 있는 End point 두개 구현
+예약과 예약 취소, 백신 접종 현황을 Dashboard로 구현하여 조회할 수 있게 제공
+현재 예약 현황과 백신별 예약 리스트를 조회할 수 있는 End point 두개 구현
 
 ```
-    // 예약 리스트 조회
-    @GetMapping("/list")
-    public ResponseEntity<List<Dashboard>> getDashboards() {
-	List<Dashboard> dashboardList = dashboardRepository.findAll();
-	return ResponseEntity.ok(dashboardList);
-    }
-	
-    // 사용자별 예약 리스트 조회
-    @GetMapping("/list/{userId}")
-    public ResponseEntity<List<Dashboard>> getDashboardsByUserId(@PathVariable Long userId) {
-	List<Dashboard> dashboardList = dashboardRepository.findByCustomerId(userId);
-	return ResponseEntity.ok(dashboardList);
-    }
+
+	// 전체 리스트 가져오기 
+	@GetMapping("/list")
+	public ResponseEntity<List<Dashboard>> getDashboardList() {
+
+		List<Dashboard> dashboardList = dashboardRepository.findAll();
+
+		return ResponseEntity.ok(dashboardList);
+	}
+
+	// 백신 타입에 따라 리스트 가져오기 
+	@GetMapping("/list/{vaccineType}")
+	public ResponseEntity<List<Dashboard>> getDashboardListByUserId(@PathVariable String vaccineType) {
+
+		List<Dashboard> dashboardList = dashboardRepository.findAllByVaccineType(vaccineType);
+
+		return ResponseEntity.ok(dashboardList);
+	}	
+
 ```
 
 
-예약, 결제 취소, 픽업에 대한 Event Listener 구현
+예약, 예약 취소, 백신 접종 대한 Event Listener 구현
 
 ```
-DashboardViewHandler.java
+PolicyHandler.java
+
 
     @StreamListener(KafkaProcessor.INPUT)
-    public void whenProductReserved_then_create(@Payload ProductReserved productReserved) {
-        try {
+    public void wheneverReservationRequested_Reserve(@Payload ReservationRequested reservationRequested) {
 
-            if (!productReserved.validate()) return;
-            System.out.println("\n\n##### listener ProductReserved : " + productReserved.toJson() + "\n\n");
+        if(!reservationRequested.validate()) return;
+        System.out.println("\n\n##### listener Dashboard ReservationRequested : " + reservationRequested.toJson() + "\n\n");
+       
+        Dashboard dashboard = new Dashboard();
+        dashboard.setUserId(reservationRequested.getUserId());
+        dashboard.setUserName(reservationRequested.getUserName());
+        dashboard.setUserRegNumber(reservationRequested.getUserRegNumber());
+        dashboard.setReserveDate(reservationRequested.getReserveDate());        
+        dashboard.setReserveStatus(reservationRequested.getReserveStatus());        
+        
+        dashboardRepository.save(dashboard);
 
-            // view 객체 생성
-            Dashboard dashboard = new Dashboard();            
-
-            dashboard.setProductId(productReserved.getProductId());
-            dashboard.setProductName(productReserved.getProductName());
-            dashboard.setProductPrice(productReserved.getProductPrice());
-            dashboard.setCustomerId(productReserved.getCustomerId());
-            dashboard.setCustomerName(productReserved.getCustomerName());
-            dashboard.setCustomerPhone(productReserved.getCustomerPhone());
-            dashboard.setReserveId(productReserved.getId());
-            dashboard.setReserveQty(productReserved.getReserveQty());
-            dashboard.setReserveDate(productReserved.getReserveDate());
-            dashboard.setReserveStatus(productReserved.getStatus());
-            dashboard.setTotalPrice(productReserved.getReserveQty() * productReserved.getProductPrice());
-
-            dashboardRepository.save(dashboard);
-
-        }catch (Exception e){
-            e.printStackTrace();
-        }
-    }
-
-    
-    @StreamListener(KafkaProcessor.INPUT)
-    public void whenPayCancelled_then_update(@Payload PayCancelled payCancelled) {
-        try {
-            if (!payCancelled.validate()) return;
-
-            Dashboard dashboard = dashboardRepository.findByReserveId(payCancelled.getReserveId());
-              
-            dashboard.setReserveStatus(payCancelled.getReserveStatus());
-            
-            DateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-			String dateStr = format.format(Calendar.getInstance().getTime());
-			dashboard.setCancelDate(dateStr);
-			
-            dashboardRepository.save(dashboard);
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
     
     
     @StreamListener(KafkaProcessor.INPUT)
-    public void whenProductPickedup_then_update(@Payload ProductPickedup productPickup) {
-        try {
-            if (!productPickup.validate()) return;
+    public void wheneverReservationCancelled_Cancel(@Payload ReservationCancelled reservationCancelled) {
 
-			Dashboard dashboard = dashboardRepository.findByReserveId(productPickup.getReserveId());
-			dashboard.setReserveStatus(productPickup.getReserveStatus());
-			
-			DateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-			String dateStr = format.format(Calendar.getInstance().getTime());
-			dashboard.setPickupDate(dateStr);
-			
-			dashboardRepository.save(dashboard);
+        if(!reservationCancelled.validate()) return;
+        System.out.println("\n\n##### listener Dashboard ReservationCancelled : " + reservationCancelled.toJson() + "\n\n");
 
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        Dashboard dashboard = dashboardRepository.findByUserId(reservationCancelled.getUserId());
+        dashboard.setReserveStatus(reservationCancelled.getReserveStatus());
+        dashboard.setCancelDate(reservationCancelled.getCancelDate());
+
+        dashboardRepository.save(dashboard);
+
     }
+    
+    
+    @StreamListener(KafkaProcessor.INPUT)
+    public void wheneverVaccineInjected_UpdateDate(@Payload VaccineInjected vaccineInjected){
+
+        if(!vaccineInjected.validate()) return;
+        System.out.println("\n\n##### listener Dashboard VaccineInjected_UpdateDate : " + vaccineInjected.toJson() + "\n\n");
+
+        Dashboard dashboard = dashboardRepository.findByUserId(vaccineInjected.getUserId());
+        dashboard.setReserveStatus("INJECT");
+        dashboard.setInjectDate(vaccineInjected.getInjectDate());
+        dashboard.setVaccineType(vaccineInjected.getVaccineType());
+
+        dashboardRepository.save(dashboard);
+    }
+
 
 ```
 
