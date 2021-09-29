@@ -27,6 +27,9 @@ public class Hospital {
             HospitalReservationReceived hospitalReservationReceived = new HospitalReservationReceived();
             BeanUtils.copyProperties(this, hospitalReservationReceived);
             hospitalReservationReceived.publishAfterCommit();
+            
+            // 병원 예약 완료 카톡 메세지 발송
+            
     	}
     }
     
@@ -40,6 +43,8 @@ public class Hospital {
             HospitalReservationCancelled hospitalReservationCancelled = new HospitalReservationCancelled();
             BeanUtils.copyProperties(this, hospitalReservationCancelled);
             hospitalReservationCancelled.publishAfterCommit();
+            
+            // 병원 예약 완료 카톡 메세지 발송
     	}
     }
 

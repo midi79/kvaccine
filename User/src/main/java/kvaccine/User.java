@@ -3,11 +3,6 @@ package kvaccine;
 import javax.persistence.*;
 import org.springframework.beans.BeanUtils;
 
-import net.bytebuddy.asm.Advice.This;
-
-import java.util.List;
-import java.util.Date;
-
 @Entity
 @Table(name="user_table")
 public class User {
