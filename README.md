@@ -1099,14 +1099,12 @@ kubectl get deploy user -o yaml
                       failureThreshold: 10
 ```
 
-- 현재 구동중인 User 서비스에 길게(3분) 부하를 준다. 
+- 현재 구동중인 User 서비스에 길게(3분) 부하를 준다. (HPA 설정 제거 및 delete 필요)
 ```
 siege -v c1 -t180S --content-type "application/json" 'http://user:8080/users'
 
 ```
-<img width="794" alt="스크린샷 2021-09-15 오후 3 32 43" src="https://user-images.githubusercontent.com/89987635/133385792-924fefb0-562f-4697-bdc6-67baba830247.png">
-<img width="710" alt="스크린샷 2021-09-15 오후 3 39 02" src="https://user-images.githubusercontent.com/89987635/133385810-3bb01bcf-f940-4f47-a035-82922ab02565.png">
-
+<img width="644" alt="2021-09-30 오후 3 43 06" src="https://user-images.githubusercontent.com/19512435/135400935-767f73d9-ef26-4d18-b8bf-a0a746476d0a.png">
 
 - AWS에 CodeBuild에 연결 되어있는 github의 코드를 commit한다.
   Resevatio 서비스의 아무 코드나 수정하고 commit 한다. 
@@ -1116,129 +1114,56 @@ siege -v c1 -t180S --content-type "application/json" 'http://user:8080/users'
 
 - pod 상태 모니터링에서 기존 Reservation 서비스가 Terminating 되고 새로운 Reservation 서비스가 Running하는 것을 확인한다.
 - pod의 상태 모니터링
+
 <img width="586" alt="스크린샷 2021-09-15 오후 4 59 23" src="https://user-images.githubusercontent.com/89987635/133394310-befb67aa-4384-40f3-a33c-974f1ee52d79.png">
 
 
 ## ConfigMap
 - 시나리오
-  1. EFS 생성 화면 캡쳐.
-  2. 등록된 provisoner / storageclass / pvc 확인.
-  3. 각 서비스의 buildspec_kubectl.yaml에 pvc 생성 정보 확인.
-  4. bash shell을 사용할 수 있는 pod를 동일한 PVC 사용할 수 있게 설정 후 배포하여 '/mnt/aws'에 각 서비스에서 생성한 파일을 확인. 
+  1. ConfigMap 등록
+  2. ConfigMap 설정 소스
+  3. ConfigMap 활용 결과
   
 
-- EFS 등록 화면 추가..
+- ConfigMap 등록
 ```
-이미지 추가.
-```
+kubectl create configmap vaccine-type --from-literal=type=Pfizer,Moderna,Janssen,AstraZeneca
 
-- provisioner 확인
 ```
-> kubectl get pod
+<img width="811" alt="2021-09-30 오후 3 48 21" src="https://user-images.githubusercontent.com/19512435/135401618-c5b5dca8-be9a-4578-aa7a-6824a1ced6d9.png">
 
-NAME                              READY   STATUS    RESTARTS   AGE
-efs-provisioner-5976978f5-cqbzq   1/1     Running   0          19s
-```
 
-- storageClass 등록, 조회
+- ConfigMap 설정 소스
+  - Hospital 서비스 : 백신 종류를 String 타입으로 받아서 파싱하여 배열로 활용
 ```
-> kubectl get sc
-NAME            PROVISIONER             RECLAIMPOLICY   VOLUMEBINDINGMODE      ALLOWVOLUMEEXPANSION   AGE
-aws-efs         my-aws.com/aws-efs      Delete          Immediate              false                  14s
-gp2 (default)   kubernetes.io/aws-ebs   Delete          WaitForFirstConsumer   false                  27h
-```
-- pvc 확인
-```
-> kubectl get pvc
-> kubectl describe pvc
-  Type    Reason                 Age                From                                                                                     Message
-  ----    ------                 ----               ----                                                                                     -------
-  Normal  ExternalProvisioning   35s (x2 over 35s)  persistentvolume-controller                                                              waiting for a volume to be created, either by external provisioner "my-aws.com/aws-efs" or manually created by system administrator
-  Normal  Provisioning           35s                my-aws.com/aws-efs_efs-provisioner-5976978f5-cqbzq_5cde0b7c-906d-477e-9e02-5b4823a9ca5c  External provisioner is provisioning volume for claim "default/aws-efs"
-  Normal  ProvisioningSucceeded  35s                my-aws.com/aws-efs_efs-provisioner-5976978f5-cqbzq_5cde0b7c-906d-477e-9e02-5b4823a9ca5c  Successfully provisioned volume pvc-c770d8b7-ef09-4a19-903b-cced4daa9f1d
-```
-<br/>
+# buildspec-kubectl.yaml
 
-- 각 Deployment의 PVC 생성정보는 buildspec-kubeclt.yaml에 적용되어있다.
-```
-                    volumeMounts:
-                      - mountPath: "/mnt/aws"
-                        name: volume
-                        :
-                        :
-                        :
-                volumes:
-                  - name: volume
-                    persistentVolumeClaim:
-                      claimName: aws-efs
+    env:
+    - name: VACCINE_TYPE
+      valueFrom:
+	configMapKeyRef:
+	  name: vaccine-type
+	  key: type
+	  
+	  
+	  
+# application.yml 
+
+vaccine:
+  type: ${VACCINE_TYPE}
+  
+  
+  
+# PolicyHandler.java
+
+	@Value("${vaccine.type}")
+	String vaccineType;
+
 ```
 
+- ConfigMap 활용 결과
 
-- 각 서비스의 Event 발생시 JSON 정보를 파일로 저장한다. 마지막 정보만 저정하기 위해 Overwirte하여 저장한다. 
-  - 아래와 같은 코드를 통하여 /mnt/aws의 경로에 파일을 저장한다. 
-```
-# AbstractEvent.java
-
-// PVC Test
-public void saveJasonToPvc(String strJson){
-    File file;
-
-    if (strJson.equals("CANCEL")){
-    file = new File("/mnt/aws/reservationCancelled_json.txt");
-    }else{
-        file = new File("/mnt/aws/productReserved_json.txt");
-    }
-
-    try {
-      BufferedWriter writer = new BufferedWriter(new FileWriter(file));
-      writer.write(strJson);
-      writer.close();
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
-} 
-
-
-public void saveJasonToPvc(String strJson){
-    File file;
-
-    if (strJson.equals("RESERVE")){
-    file = new File("/mnt/aws/payRequested_json.txt");
-    }else{
-        file = new File("/mnt/aws/payCancelled_json.txt");
-    }
-
-    try {
-      BufferedWriter writer = new BufferedWriter(new FileWriter(file));
-      writer.write(strJson);
-      writer.close();
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
-}
-
-
-// PVC Test
-public void saveJasonToPvc(String strJson){
-    
-    File file = new File("/mnt/aws/productPickedupjson.txt");
-
-    try {
-      BufferedWriter writer = new BufferedWriter(new FileWriter(file));
-      writer.write(strJson);
-      writer.close();
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
-}  
-```
-
-- 각 서비스에서 저장한 Event 정보파일을 동일한 PVC를 사용하는 Pod를 생성하여 배포 후 /mnt/aws에 저장되어 있는지 확인. 
-
-<img width="1115" alt="스크린샷 2021-09-15 오후 3 42 05" src="https://user-images.githubusercontent.com/89987635/133385983-48f1a1d1-2c58-4a34-9c32-ba9d6a5f8b50.png">
-
-
-- 서비스 Event를 저장한 파일들을 확인 할 수 있다. 
+<img width="811" alt="2021-09-30 오후 3 48 21" src="https://user-images.githubusercontent.com/19512435/135402307-ba666089-d7a5-4dfd-b352-1337dab21e15.png">
 
 
 
