@@ -2,7 +2,7 @@ version: 0.2
 
 env:
   variables:
-    _PROJECT_NAME: "kvaccine-dashboard"
+    _PROJECT_NAME: "user15-dashboard"
     _POD_NAME: "dashboard"  # low case character
 
 phases:
