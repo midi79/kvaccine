@@ -7,6 +7,7 @@ import java.util.Calendar;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -60,6 +61,24 @@ public class UserController {
 		
 		return ResponseEntity.ok(foundUser);
 	}
+	
+	
+	// CPU 부하 코드
+	@GetMapping("/hpa")
+	public String testHPA(){
+		double x = 0.0001;
+		String hostname = "";
+		for (int i = 0; i <= 1000000; i++){
+			x += java.lang.Math.sqrt(x);
+		}
+		try{
+			hostname = java.net.InetAddress.getLocalHost().getHostName();
+		} catch(java.net.UnknownHostException e){
+			e.printStackTrace();
+		}
+
+		return "====== HPA Test(" + hostname + ") ====== \n";
+	}	
 	
 
 }
