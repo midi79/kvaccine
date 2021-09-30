@@ -766,46 +766,45 @@ PolicyHandler.java
 
 - 레포지터리 생성 확인
 
-<img width="2509" alt="스크린샷 2021-09-15 오전 11 25 27" src="https://user-images.githubusercontent.com/89987635/133383981-57d87ff8-8772-4d94-ba1a-cca5cf83cbcc.png">
+![2021-09-30 오전 10 45 33](https://user-images.githubusercontent.com/19512435/135386077-97149d4d-e42e-4b46-a5c1-c4ca84cd855e.png)
 
 <br/>
 
 - 생성 할 CodeBuild
-  - team01-gateway
-  - team01-reservation
-  - team01-pay
-  - team01-store
-  - team01-stock01
-  - team01-view
+  - user15-gateway
+  - user15-user
+  - user15-reservation
+  - user15-hospital
+  - user15-stock
+  - user15-dashboar
 <br/>
 
 
 - github의 각 서비스의 서브 폴더에 buildspec-kubect.yaml 위치.
 
-![image](https://user-images.githubusercontent.com/22004206/133250463-b7c80d2c-e58b-4329-8ded-dca2b146215a.png)
-![image](https://user-images.githubusercontent.com/22004206/133250705-66c3e747-e3aa-4aa5-90a0-1e9efb4210c5.png)
-![image](https://user-images.githubusercontent.com/22004206/133250824-3e9689f6-2327-45dd-8322-bacad102e1d3.png)
-![image](https://user-images.githubusercontent.com/22004206/133250923-f62f98bb-28bb-4dea-ab6f-6b6b9081c9c1.png)
-![image](https://user-images.githubusercontent.com/22004206/133251040-94926311-83d1-422e-95d9-7a8950227966.png)
+<img width="1350" alt="2021-09-30 오후 1 19 20" src="https://user-images.githubusercontent.com/19512435/135386959-f4ab2f21-4c58-490c-bc65-9d5780a62f2c.png">
+<img width="1350" alt="2021-09-30 오후 1 19 51" src="https://user-images.githubusercontent.com/19512435/135386963-5a5670f3-e6a2-4b6c-b678-68f2ae717233.png">
+<img width="1350" alt="2021-09-30 오후 1 22 15" src="https://user-images.githubusercontent.com/19512435/135386966-91c9e472-4fe5-4b93-90ed-417f828a3ccb.png">
+<img width="1350" alt="2021-09-30 오후 1 21 30" src="https://user-images.githubusercontent.com/19512435/135386968-4dc4a068-e8d5-46f4-adc3-d6e633c73bb3.png">
+<img width="1350" alt="2021-09-30 오후 1 21 48" src="https://user-images.githubusercontent.com/19512435/135386969-7a3f4bd9-1d69-43eb-93aa-f976ed899c2a.png">
+<img width="1350" alt="2021-09-30 오후 1 22 43" src="https://user-images.githubusercontent.com/19512435/135386973-2c04e781-f162-4920-ac5c-684368d49438.png">
 
 
 - 연결된 github에 Commit 진행시 6개의 서비스들 build 진행 여부 및 성공 확인 
 
-<img width="1187" alt="스크린샷 2021-09-15 오후 3 47 31" src="https://user-images.githubusercontent.com/89987635/133384246-cf1da089-5f5c-4c29-bb08-049979231eba.png">
+<img width="1364" alt="2021-09-30 오후 12 10 32" src="https://user-images.githubusercontent.com/19512435/135387075-6ef51071-f39b-4e5d-beaa-ab732e0d40ef.png">
 
 
--	배포된 6개의 Service  확인
+- 배포된 6개의 Service  확인
 ```
-root@labs-1916923594:/home/project# kubectl get all
-NAME                                 READY   STATUS    RESTARTS   AGE
-pod/efs-provisioner-84b8576f-s5m2h   1/1     Running   0          4h28m
-pod/gateway-fb444ccb5-qzwpb          1/1     Running   0          15m
-pod/pay-d579c6997-rpcds              1/1     Running   0          10m
-pod/reservation-55547fd689-vcvq8     1/1     Running   0          10m
-pod/siege-pvc                        1/1     Running   0          65m
-pod/store-78c6cbd6c4-h4b8s           1/1     Running   0          10m
-pod/supplier-76fd6bbf4f-c6jbs        1/1     Running   0          15m
-pod/view-5c8788f97d-swclr            1/1     Running   0          10m
+midi79@Cheolkyuui-iMac ~ % kubectl get all
+NAME                               READY   STATUS    RESTARTS   AGE
+pod/dashboard-5dcc5bc45b-bjmmp     1/1     Running   0          97m
+pod/gateway-6dcf665bd6-s6ktt       1/1     Running   0          120m
+pod/hospital-787b869f7f-d22qc      1/1     Running   0          93m
+pod/reservation-77495748fd-qmcvc   1/1     Running   0          107m
+pod/stock-dc848464b-fz4kw          1/1     Running   0          104m
+pod/user-78fdf576f9-xvft9          1/1     Running   0          111m
 
 ```
 
@@ -820,24 +819,24 @@ spring:
   cloud:
     gateway:
       routes:
+        - id: User
+          uri: http://user:8080
+          predicates:
+            - Path=/user/** 
+        - id: Dashboard
+          uri: http://dashboard:8080
+          predicates:
+            - Path= /dashboard/**
         - id: Reservation
           uri: http://reservation:8080
           predicates:
             - Path=/reservation/** 
-        - id: Pay
-          uri: http://pay:8080
+        - id: Hospital
+          uri: http://hospital:8080
           predicates:
-            - Path=/pay/** 
-        - id: Store
-          uri: http://store:8080
-          predicates:
-            - Path=/product/** 
-        - id: View
-          uri: http://view:8080
-          predicates:
-            - Path= /dashboard/**
-        - id: Supplier
-          uri: http://supplier:8080
+            - Path=/hospital/** 
+        - id: VaccineStock
+          uri: http://stock:8080
           predicates:
             - Path=/stock/** 
       globalcors:
@@ -850,7 +849,6 @@ spring:
             allowedHeaders:
               - "*"
             allowCredentials: true
-
 ```
 
 - Gateway는 AWS 상의 Load Balancer와 연결하여 외부로 노출함
@@ -874,16 +872,16 @@ spring:
 
 ```
 
-<img width="1121" alt="스크린샷 2021-09-15 오후 9 59 25" src="https://user-images.githubusercontent.com/89987635/133437863-c26ca739-dd58-4b48-bb7e-f46cc195cc7d.png">
+<img width="1350" alt="2021-09-30 오후 1 28 55" src="https://user-images.githubusercontent.com/19512435/135387444-d1bc9bcb-5268-4290-a99e-2bfb410dfd5d.png">
 
 
 ## 동기식 호출 / 서킷 브레이킹 / 장애격리
 - 시나리오
-  1. 예약(reservation) --> 결재(pay)시의 연결을 RESTful Request/Response 로 연동하여 구현 함. 결제 요청이 과도할 경우 CB가 발생하고 fallback으로 결재 지연 메새지를 보여줌으로 장애 격리 시킴.
-  2. circuit break의 timeout은 610mm 설정. 
-  3. Pay 서비스에 임의의 부하 처리.
+  1. User -> Reservation으로 예약 가능 날짜 요청은 RESTful Request/Response 로 연동하여 구현 함. 요청이 과도할 경우 CB가 발생하고 fallback으로 결재 지연 메새지를 보여줌으로 장애 격리 시킴.
+  2. circuit break의 timeout은 500mm 설정. 
+  3. Reservation 서비스에 임의의 부하 처리.
   4. 부하테스터(seige) 를 통한 circuit break 확인. 
-    - 결재 지연 메세지 확인.
+    - 예약 가능 날짜 조회 지연 메세지 확인.
     - seige의 Availability 100% 확인.
 
 <br/>
@@ -901,42 +899,43 @@ feign:
 
 hystrix:
   command:
-    # 전역설정 timeout이 610ms 가 넘으면 CB 처리.
+    # 전역설정 timeout이 500ms 가 넘으면 CB 처리.
     default:
-      execution.isolation.thread.timeoutInMilliseconds: 610
+      execution.isolation.thread.timeoutInMilliseconds: 500
 ```
-- Pay 서비스에 임의 부하 처리 - 400 밀리에서 증감 220 밀리 정도 왔다갔다 하게 아래 코드 추가
+- Reservation 서비스에 임의 부하 처리 - 400 밀리에서 증감 120 밀리 정도 왔다갔다 하게 아래 코드 추가
 ```
-# PayHisotryController.java
+# ReservationController.java
 
 try {
-    Thread.currentThread().sleep((long) (400 + Math.random() * 220));
+    Thread.currentThread().sleep((long) (400 + Math.random() * 120));
 } catch (InterruptedException e) {
     e.printStackTrace();
 }
 ```
-- Resevation 서비스에 FeignClient fallback 코드 추가.
+- User 서비스에 FeignClient fallback 코드 추가.
 ```
-# PayHistoryService.java
+# ReservationService.java
 
-@FeignClient(name ="delivery", url="${api.url.pay}", fallback = PayHistoryServiceImpl.class)
+@FeignClient(name="Reservation", url="${api.url.reservation}", fallback = ReservationServiceImpl.class)
 ```
 
 ```
-# PayHistoryServiceImple.java
+# ReservationServiceImpl.java
 
 @Service
-public class PayHistoryServiceImpl implements PayHistoryService {
-    /**
-     * Pay fallback
-     */
-    public boolean request(PayHistory payhistory) {
-        System.out.println("@@@@@@@ 결재 지연중 입니다. @@@@@@@@@@@@");
-        System.out.println("@@@@@@@ 결재 지연중 입니다. @@@@@@@@@@@@");
-        System.out.println("@@@@@@@ 결재 지연중 입니다. @@@@@@@@@@@@");
-        return false;
-    }
+public class ReservationServiceImpl implements ReservationService {
+
+	public ArrayList<ReserveDate> dateRequest(Reservation reservation) {
+		
+		System.out.println("################## 조회 폭주로 서비스 지연 중입니다.#######################");
+		System.out.println("################## 조회 폭주로 서비스 지연 중입니다.#######################");
+		System.out.println("################## 조회 폭주로 서비스 지연 중입니다.#######################");
+	
+		return null;
+	}
 }
+
 ```
 
 - 부하테스터 siege 툴을 통한 서킷 브레이커 동작 확인:
