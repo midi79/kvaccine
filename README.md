@@ -1101,7 +1101,7 @@ kubectl get deploy user -o yaml
 
 - 현재 구동중인 User 서비스에 길게(3분) 부하를 준다. 
 ```
-siege -v c10 -t180S --content-type "application/json" 'http://user:8080/user/date POST {"userName":"Lee","userRegNumber":"930619-2345678"}'
+siege -v c1 -t180S --content-type "application/json" 'http://user:8080/users'
 
 ```
 <img width="794" alt="스크린샷 2021-09-15 오후 3 32 43" src="https://user-images.githubusercontent.com/89987635/133385792-924fefb0-562f-4697-bdc6-67baba830247.png">
@@ -1119,7 +1119,7 @@ siege -v c10 -t180S --content-type "application/json" 'http://user:8080/user/dat
 <img width="586" alt="스크린샷 2021-09-15 오후 4 59 23" src="https://user-images.githubusercontent.com/89987635/133394310-befb67aa-4384-40f3-a33c-974f1ee52d79.png">
 
 
-## Persistant Volume Claim
+## ConfigMap
 - 시나리오
   1. EFS 생성 화면 캡쳐.
   2. 등록된 provisoner / storageclass / pvc 확인.
