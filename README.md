@@ -1162,9 +1162,8 @@ vaccine:
 ```
 
 - ConfigMap 활용 결과
-
-<img width="811" alt="2021-09-30 오후 3 48 21" src="https://user-images.githubusercontent.com/19512435/135402307-ba666089-d7a5-4dfd-b352-1337dab21e15.png">
-
+- 
+<img width="807" alt="2021-09-30 오후 3 54 17" src="https://user-images.githubusercontent.com/19512435/135403153-c7832afb-db7c-46d3-8c48-d142ae8185da.png">
 
 
 
