@@ -46,9 +46,9 @@ feign:
 
 hystrix:
   command:
-    # 전역설정 timeout이 500ms 가 넘으면 CB 처리.
+    # 전역설정 timeout이 610ms 가 넘으면 CB 처리.
     default:
-      execution.isolation.thread.timeoutInMilliseconds: 500
+      execution.isolation.thread.timeoutInMilliseconds: 610
 logging:
   level:
     org.hibernate.type: trace
@@ -91,9 +91,9 @@ feign:
 
 hystrix:
   command:
-    # 전역설정 timeout이 500ms 가 넘으면 CB 처리.
+    # 전역설정 timeout이 610ms 가 넘으면 CB 처리.
     default:
-      execution.isolation.thread.timeoutInMilliseconds: 500
+      execution.isolation.thread.timeoutInMilliseconds: 610
       
 api:
   url:
