@@ -899,16 +899,16 @@ feign:
 
 hystrix:
   command:
-    # 전역설정 timeout이 500ms 가 넘으면 CB 처리.
+    # 전역설정 timeout이 610ms 가 넘으면 CB 처리.
     default:
-      execution.isolation.thread.timeoutInMilliseconds: 500
+      execution.isolation.thread.timeoutInMilliseconds: 610
 ```
-- Reservation 서비스에 임의 부하 처리 - 400 밀리에서 증감 120 밀리 정도 왔다갔다 하게 아래 코드 추가
+- Reservation 서비스에 임의 부하 처리 - 500 밀리에서 증감 120 밀리 정도 왔다갔다 하게 아래 코드 추가
 ```
 # ReservationController.java
 
 try {
-    Thread.currentThread().sleep((long) (400 + Math.random() * 120));
+    Thread.currentThread().sleep((long) (500 + Math.random() * 120));
 } catch (InterruptedException e) {
     e.printStackTrace();
 }
@@ -939,30 +939,31 @@ public class ReservationServiceImpl implements ReservationService {
 ```
 
 - 부하테스터 siege 툴을 통한 서킷 브레이커 동작 확인:
-  - 동시사용자 100명, 60초 동안 실시
-  - Reservation 서비스의 log 확인.
+  - 동시사용자 10명, 30초 동안 실시
+  - User 서비스의 log 확인.
 
-<img width="2061" alt="스크린샷 2021-09-15 오후 3 07 23" src="https://user-images.githubusercontent.com/89987635/133384541-fabf95af-a968-491e-b782-14bbb16d9062.png">
+<img width="706" alt="2021-09-30 오후 2 14 51" src="https://user-images.githubusercontent.com/19512435/135391609-db8b8637-a6f1-4081-af0c-db10f3f26779.png">
 
-- 결재 서비스에 지연이 발생하는 경우 결재지연 메세지를 보여주고 장애에 분리되어 Avalablity가 100% 이다. 
+- 예약 서비스에 지연이 발생하는 경우 지연 메세지를 보여주고 장애에 분리되어 Avalablity가 100% 이다. 
 
-- 예약 서비스(reservation)의 log에 아래에서 결재 지연 메세지를 확인한다.
+- User 서비스의 log에 아래에서 조회 지연 메세지를 확인한다.
 
-<img width="1180" alt="스크린샷 2021-09-15 오후 3 06 12" src="https://user-images.githubusercontent.com/89987635/133384661-e8c55eac-215e-4d7b-be1c-c6f269541f5b.png">
+<img width="706" alt="2021-09-30 오후 2 15 04" src="https://user-images.githubusercontent.com/19512435/135391601-b84920ec-5beb-42af-a3c8-f121e3caa37c.png">
+
 
 - 시스템은 죽지 않고 지속적으로 과도한 부하시 CB 에 의하여 회로가 닫히고 결재 지연중 메세지를 보여주며 고객을 장애로 부터 격리시킴.
 
 
 
 ## 오토스케일 아웃
-- 예약서비스(Reservation)에 대해  CPU Load 50%를 넘어서면 Replica를 10까지 늘려준다. 
+- User 서비스에 대해  CPU Load 50%를 넘어서면 Replica를 5까지 늘려준다. 
   - buildspec-kubectl.yaml
 ```
           cat <<EOF | kubectl apply -f -
           apiVersion: autoscaling/v2beta2
           kind: HorizontalPodAutoscaler
           metadata:
-            name: reservation-hpa
+            name: user-hpa
           spec:
             scaleTargetRef:
               apiVersion: apps/v1
@@ -980,7 +981,7 @@ public class ReservationServiceImpl implements ReservationService {
           EOF
 ```
 
-- 예약서비스(reservation)에 대한 CPU Resouce를 1000m으로 제한 한다.
+- User서비스에 대한 CPU Resouce를 1000m으로 제한 한다.
   - buildspec-kubectl.yaml
 ```
                     resources:
@@ -992,27 +993,28 @@ public class ReservationServiceImpl implements ReservationService {
                         memory: 300Mi
 ```
 
-- Siege (로더제너레이터)를 설치하고 해당 컨테이너로 접속한다.
+- Siege를 설치하고 해당 컨테이너로 접속한다.
 ```
 > kubectl create deploy siege-pvc --image=ghcr.io/acmexii/siege-nginx:latest
-> kubectl exec pod/siege-pvc -it -- /bin/bash
+> kubectl exec -it pod/siege-75d5587bf6-qblsz -- /bin/bash
 ```
 
-- 예약 서비스(reseravation)에 워크로드를 동시 사용자 100명 60초 동안 진행한다.
+- User 서비스에 워크로드를 동시 사용자 100명 60초 동안 진행한다.
 ```
-siege -v -c100 -t60S --content-type "application/json" 'http://reservation:8080/reservation/order POST {"productId": 222,"productName": "Galaxy Watch7","productPrice": 5000000,"customerId”:999,”customerName":"Sam","customerPhone":"010-9837-0279","qty":2}'
+siege -v c100 -t60S --content-type "application/json" 'http://user:8080/user/date POST {"userName":"Lee","userRegNumber":"930619-2345678"}'
+
 ```
 - 오토스케일이 어떻게 되고 있는지 모니터링을 걸어둔다 : 각각의 Terminal에 
-  - 어느정도 시간이 흐른 후 (약 30초) 스케일 아웃이 벌어지는 것을 확인할 수 있다.
+- 어느정도 시간이 흐른 후 (약 30초) 스케일 아웃이 벌어지는 것을 확인할 수 있다.
   
-<img width="582" alt="스크린샷 2021-09-15 오후 3 08 36" src="https://user-images.githubusercontent.com/89987635/133384946-a6eedf1e-660e-4064-b1aa-d798c0a8a37a.png"> 
+<img width="706" alt="2021-09-30 오후 2 34 50" src="https://user-images.githubusercontent.com/19512435/135393511-90b2e890-3b01-4fd9-b450-ee61d89b09a6.png">
 
 
 ```	
 
-root@labs-1916923594:/home/project# kubectl get hpa
-NAME              REFERENCE                TARGETS   MINPODS   MAXPODS   REPLICAS   AGE
-reservation-hpa   Deployment/reservation   1%/50%    1         10        1          138m
+midi79@Cheolkyuui-iMac ~ % kubectl get hpa
+NAME       REFERENCE         TARGETS   MINPODS   MAXPODS   REPLICAS   AGE
+user-hpa   Deployment/user   2%/50%    1         5         5          3h4m
 
 ```
 
@@ -1020,17 +1022,17 @@ reservation-hpa   Deployment/reservation   1%/50%    1         10        1      
 ## Self Healing
 ### ◆ Liveness- HTTP Probe
 - 시나리오
-  1. Reservation 서비스의 Liveness 설정을 확인힌다. 
-  2. Reservation 서비스의 Liveness Probe는 actuator의 health 상태 확인을 설정되어 있어 actuator/health 확인.
+  1. User 서비스의 Liveness 설정을 확인힌다. 
+  2. User 서비스의 Liveness Probe는 actuator의 health 상태 확인을 설정되어 있어 actuator/health 확인.
   3. pod의 상태 모니터링
-  4. Reservation 서비스의 Liveness Probe인 actuator를 down 시켜 Reservation 서비스가 termination 되고 restart 되는 self healing을 확인한다. 
-  5. Reservation 서비스의 describe를 확인하여 Restart가 되는 부분을 확인한다.
+  4. User 서비스의 Liveness Probe인 actuator를 down 시켜 User 서비스가 termination 되고 restart 되는 self healing을 확인한다. 
+  5. User 서비스의 describe를 확인하여 Restart가 되는 부분을 확인한다.
 
 <br/>
 
-- Reservation 서비스의 Liveness probe 설정 확인
+- User 서비스의 Liveness probe 설정 확인
 ```
-kubectl get deploy reservation -o yaml
+kubectl get deploy user -o yaml
 
                   :
         livenessProbe:
@@ -1049,53 +1051,42 @@ kubectl get deploy reservation -o yaml
 - Httpie를 사용하기 위해 Siege를 설치하고 해당 컨테이너로 접속한다.
 ```
 > kubectl create deploy siege --image=ghcr.io/acmexii/siege-nginx:latest
-> kubectl exec pod/[SIEGE-POD객체] -it -- /bin/bash
+> kubectl exec -it pod/siege-75d5587bf6-qblsz -- /bin/bash
 ```
 
 - Liveness Probe 확인 
 
-<img width="582" alt="스크린샷 2021-09-15 오후 3 11 13" src="https://user-images.githubusercontent.com/89987635/133385107-d191cd39-9246-4698-9a6b-4eb1f35a8ecb.png">
+<img width="735" alt="2021-09-30 오후 2 43 27" src="https://user-images.githubusercontent.com/19512435/135394188-9091f11d-d633-453f-986a-6218e31ef802.png">
 
 - Liveness Probe Fail 설정 및 확인 
-  - Reservation Liveness Probe를 명시적으로 Fail 상태로 전환한다.
+  - User Liveness Probe를 명시적으로 Fail 상태로 전환한다.
 
-<img width="582" alt="스크린샷 2021-09-15 오후 3 14 01" src="https://user-images.githubusercontent.com/89987635/133385278-a7c33be3-95c9-40f2-bc88-78897af82524.png">
+<img width="1398" alt="2021-09-30 오후 3 02 39" src="https://user-images.githubusercontent.com/19512435/135396258-5d6d1829-27e6-4c53-9172-711820816429.png">
 
 
 - Probe Fail에 따른 쿠버네티스 동작확인  
-  - Reservation 서비스의 Liveness Probe가 /actuator/health의 상태가 DOWN이 된 것을 보고 restart를 진행함. 
-    - reservation pod의 RESTARTS가 1로 바뀐것을 확인. 
+  - User 서비스의 Liveness Probe가 /actuator/health의 상태가 DOWN이 된 것을 보고 restart를 진행함. 
+    - user pod의 RESTARTS가 1로 바뀐것을 확인. 
     - describe 를 통해 해당 pod가 restart 된 것을 알 수 있다.
-```
-Every 1.0s: kubectl get pod                                        labs-1916923594: Wed Sep 15 07:08:41 2021
 
-NAME                             READY   STATUS    RESTARTS   AGE
-efs-provisioner-84b8576f-s5m2h   1/1     Running   0          4h49m
-gateway-f48b5bc7c-k47sf          1/1     Running   0          2m27s
-pay-5bbf487cf7-jw6mg             1/1     Running   0          3m23s
-reservation-db4c66457-z8z4q      0/1     Running   1          3m21s
-siege-pvc                        1/1     Running   0          85m
-store-56fbfc5d7d-hlcpm           1/1     Running   0          3m18s
-supplier-58c6f85cb9-54tbc        1/1     Running   0          2m22s
-view-bdc7b9ccd-w5ngd             1/1     Running   0          3m23s
+<img width="735" alt="2021-09-30 오후 3 00 10" src="https://user-images.githubusercontent.com/19512435/135396186-89e7d767-56a1-4d83-90fb-43b387aade34.png">
 
-```
-<img width="1962" alt="스크린샷 2021-09-15 오후 4 11 13" src="https://user-images.githubusercontent.com/89987635/133387508-9b1d5641-48c8-481d-8fb7-0b6d14f967ce.png">
+<img width="1894" alt="2021-09-30 오후 3 02 00" src="https://user-images.githubusercontent.com/19512435/135396386-e7683bd8-4d36-45fa-b28e-eddf6ff6f699.png">
 
 	
 ## 무정지 재배포
 ### ◆ Rediness- HTTP Probe
 - 시나리오
-  1. 현재 구동중인 Reservation 서비스에 길게(3분) 부하를 준다. 
-  2. reservation pod의 상태 모니터링
+  1. 현재 구동중인 User 서비스에 길게(3분) 부하를 준다. 
+  2. user pod의 상태 모니터링
   3. AWS에 CodeBuild에 연결 되어있는 github의 코드를 commit한다.
-  4. Codebuild를 통해 새로운 버전의 Reservation이 배포 된다. 
-  5. pod 상태 모니터링에서 기존 Reservation 서비스가 Terminating 되고 새로운 Reservation 서비스가 Running하는 것을 확인한다.
+  4. Codebuild를 통해 새로운 버전의 User이 배포 된다. 
+  5. pod 상태 모니터링에서 기존 User 서비스가 Terminating 되고 새로운 User 서비스가 Running하는 것을 확인한다.
   6. Readness에 의해서 새로운 서비스가 정상 동작할때까지 이전 버전의 서비스가 동작하여 seieg의 Avality가 100%가 된다.
 
 <br/>
 
-- reservstion 서비스의 Readness probe  설정 확인
+- User 서비스의 Readness probe  설정 확인
   - buildspec_kubectl.yaml
 ```
                     readinessProbe:
@@ -1108,9 +1099,10 @@ view-bdc7b9ccd-w5ngd             1/1     Running   0          3m23s
                       failureThreshold: 10
 ```
 
-- 현재 구동중인 Reservation 서비스에 길게(2분) 부하를 준다. 
+- 현재 구동중인 User 서비스에 길게(3분) 부하를 준다. 
 ```
-> siege -v -c1 -t120S --content-type "application/json" 'http://reservation:8080/reservation/order POST {"productId": 222,"productName": "Galaxy Watch7","productPrice": 5000000,"customerId”:999,”customerName":"Sam","customerPhone":"010-9837-0279","qty":2}'
+siege -v c10 -t180S --content-type "application/json" 'http://user:8080/user/date POST {"userName":"Lee","userRegNumber":"930619-2345678"}'
+
 ```
 <img width="794" alt="스크린샷 2021-09-15 오후 3 32 43" src="https://user-images.githubusercontent.com/89987635/133385792-924fefb0-562f-4697-bdc6-67baba830247.png">
 <img width="710" alt="스크린샷 2021-09-15 오후 3 39 02" src="https://user-images.githubusercontent.com/89987635/133385810-3bb01bcf-f940-4f47-a035-82922ab02565.png">
