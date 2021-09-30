@@ -1082,7 +1082,7 @@ kubectl get deploy user -o yaml
   3. AWS에 CodeBuild에 연결 되어있는 github의 코드를 commit한다.
   4. Codebuild를 통해 새로운 버전의 User이 배포 된다. 
   5. pod 상태 모니터링에서 기존 User 서비스가 Terminating 되고 새로운 User 서비스가 Running하는 것을 확인한다.
-  6. Readness에 의해서 새로운 서비스가 정상 동작할때까지 이전 버전의 서비스가 동작하여 seieg의 Avality가 100%가 된다.
+  6. Readness에 의해서 새로운 서비스가 정상 동작할때까지 이전 버전의 서비스가 동작하여 seige의 Availability가 100%가 된다.
 
 <br/>
 
@@ -1107,15 +1107,16 @@ siege -v c1 -t180S --content-type "application/json" 'http://user:8080/users'
 <img width="644" alt="2021-09-30 오후 3 43 06" src="https://user-images.githubusercontent.com/19512435/135400935-767f73d9-ef26-4d18-b8bf-a0a746476d0a.png">
 
 - AWS에 CodeBuild에 연결 되어있는 github의 코드를 commit한다.
-  Resevatio 서비스의 아무 코드나 수정하고 commit 한다. 
+  User 서비스의 아무 코드나 수정하고 commit 한다. 
   배포 될때까지 잠시 기다린다. 
   Ex) buildspec-kubectl.yaml에 carrage return을  추가 commit 한다. 
 
 
-- pod 상태 모니터링에서 기존 Reservation 서비스가 Terminating 되고 새로운 Reservation 서비스가 Running하는 것을 확인한다.
+- pod 상태 모니터링에서 기존 User 서비스가 Terminating 되고 새로운 User 서비스가 Running하는 것을 확인한다.
 - pod의 상태 모니터링
 
-<img width="586" alt="스크린샷 2021-09-15 오후 4 59 23" src="https://user-images.githubusercontent.com/89987635/133394310-befb67aa-4384-40f3-a33c-974f1ee52d79.png">
+<img width="807" alt="2021-09-30 오후 4 05 12" src="https://user-images.githubusercontent.com/19512435/135403847-795e4dba-a99f-4fa0-8243-429c08b97ce4.png">
+
 
 
 ## ConfigMap
@@ -1162,7 +1163,8 @@ vaccine:
 ```
 
 - ConfigMap 활용 결과
-- 
+  - 백신 예약시 랜덤으로 백신 종류가 선택되고, Dashboard에서 사용자별로 접종된 백신 종류 조회 가능
+  
 <img width="807" alt="2021-09-30 오후 3 54 17" src="https://user-images.githubusercontent.com/19512435/135403153-c7832afb-db7c-46d3-8c48-d142ae8185da.png">
 
 
