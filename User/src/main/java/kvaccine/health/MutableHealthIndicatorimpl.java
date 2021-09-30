@@ -1,4 +1,4 @@
-package health;
+package kvaccine.health;
 
 import java.util.concurrent.atomic.AtomicReference;
 
