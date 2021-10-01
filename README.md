@@ -516,7 +516,7 @@ POST http://localhost:8080/user/date          #Success
 ## 비동기식 호출 / 시간적 디커플링 / 장애격리 / 최종 (Eventual) 일관성 테스트
 
 
-예약이 이루어진 후에 Hospital 서비스로 이를 알려주는 행위는 동기식이 아니라 비동기식으로 처리하여 Hospital 서비스의 처리를 위하여 결제가 블로킹 되지 않아도록 처리한다.
+예약이 이루어진 후에 Hospital 서비스로 이를 알려주는 행위는 동기식이 아니라 비동기식으로 처리하여 Hospital 서비스의 처리를 위하여 예약이 블로킹 되지 않도록 처리한다.
  
 - 이를 위하여 예약 이력을 저장 후에 곧바로 예약 완료가 되었다는 도메인 이벤트를 카프카로 송출한다. (Publish)
   이때 다른 저장 로직에 의해서 해당 이벤트가 발송되는 것을 방지하기 위해 Status 체크하는 로직을 추가했다.
@@ -899,16 +899,16 @@ feign:
 
 hystrix:
   command:
-    # 전역설정 timeout이 500ms 가 넘으면 CB 처리.
+    # 전역설정 timeout이 610ms 가 넘으면 CB 처리.
     default:
-      execution.isolation.thread.timeoutInMilliseconds: 500
+      execution.isolation.thread.timeoutInMilliseconds: 610
 ```
-- Reservation 서비스에 임의 부하 처리 - 400 밀리에서 증감 120 밀리 정도 왔다갔다 하게 아래 코드 추가
+- Reservation 서비스에 임의 부하 처리 - 500 밀리에서 증감 120 밀리 정도 왔다갔다 하게 아래 코드 추가
 ```
 # ReservationController.java
 
 try {
-    Thread.currentThread().sleep((long) (400 + Math.random() * 120));
+    Thread.currentThread().sleep((long) (500 + Math.random() * 120));
 } catch (InterruptedException e) {
     e.printStackTrace();
 }
@@ -939,30 +939,31 @@ public class ReservationServiceImpl implements ReservationService {
 ```
 
 - 부하테스터 siege 툴을 통한 서킷 브레이커 동작 확인:
-  - 동시사용자 100명, 60초 동안 실시
-  - Reservation 서비스의 log 확인.
+  - 동시사용자 10명, 30초 동안 실시
+  - User 서비스의 log 확인.
 
-<img width="2061" alt="스크린샷 2021-09-15 오후 3 07 23" src="https://user-images.githubusercontent.com/89987635/133384541-fabf95af-a968-491e-b782-14bbb16d9062.png">
+<img width="706" alt="2021-09-30 오후 2 14 51" src="https://user-images.githubusercontent.com/19512435/135391609-db8b8637-a6f1-4081-af0c-db10f3f26779.png">
 
-- 결재 서비스에 지연이 발생하는 경우 결재지연 메세지를 보여주고 장애에 분리되어 Avalablity가 100% 이다. 
+- 예약 서비스에 지연이 발생하는 경우 지연 메세지를 보여주고 장애에 분리되어 Avalablity가 100% 이다. 
 
-- 예약 서비스(reservation)의 log에 아래에서 결재 지연 메세지를 확인한다.
+- User 서비스의 log에 아래에서 조회 지연 메세지를 확인한다.
 
-<img width="1180" alt="스크린샷 2021-09-15 오후 3 06 12" src="https://user-images.githubusercontent.com/89987635/133384661-e8c55eac-215e-4d7b-be1c-c6f269541f5b.png">
+<img width="706" alt="2021-09-30 오후 2 15 04" src="https://user-images.githubusercontent.com/19512435/135391601-b84920ec-5beb-42af-a3c8-f121e3caa37c.png">
+
 
 - 시스템은 죽지 않고 지속적으로 과도한 부하시 CB 에 의하여 회로가 닫히고 결재 지연중 메세지를 보여주며 고객을 장애로 부터 격리시킴.
 
 
 
 ## 오토스케일 아웃
-- 예약서비스(Reservation)에 대해  CPU Load 50%를 넘어서면 Replica를 10까지 늘려준다. 
+- User 서비스에 대해  CPU Load 50%를 넘어서면 Replica를 5까지 늘려준다. 
   - buildspec-kubectl.yaml
 ```
           cat <<EOF | kubectl apply -f -
           apiVersion: autoscaling/v2beta2
           kind: HorizontalPodAutoscaler
           metadata:
-            name: reservation-hpa
+            name: user-hpa
           spec:
             scaleTargetRef:
               apiVersion: apps/v1
@@ -980,7 +981,7 @@ public class ReservationServiceImpl implements ReservationService {
           EOF
 ```
 
-- 예약서비스(reservation)에 대한 CPU Resouce를 1000m으로 제한 한다.
+- User서비스에 대한 CPU Resouce를 1000m으로 제한 한다.
   - buildspec-kubectl.yaml
 ```
                     resources:
@@ -992,27 +993,28 @@ public class ReservationServiceImpl implements ReservationService {
                         memory: 300Mi
 ```
 
-- Siege (로더제너레이터)를 설치하고 해당 컨테이너로 접속한다.
+- Siege를 설치하고 해당 컨테이너로 접속한다.
 ```
 > kubectl create deploy siege-pvc --image=ghcr.io/acmexii/siege-nginx:latest
-> kubectl exec pod/siege-pvc -it -- /bin/bash
+> kubectl exec -it pod/siege-75d5587bf6-qblsz -- /bin/bash
 ```
 
-- 예약 서비스(reseravation)에 워크로드를 동시 사용자 100명 60초 동안 진행한다.
+- User 서비스에 워크로드를 동시 사용자 100명 60초 동안 진행한다.
 ```
-siege -v -c100 -t60S --content-type "application/json" 'http://reservation:8080/reservation/order POST {"productId": 222,"productName": "Galaxy Watch7","productPrice": 5000000,"customerId”:999,”customerName":"Sam","customerPhone":"010-9837-0279","qty":2}'
+siege -v c100 -t60S --content-type "application/json" 'http://user:8080/user/date POST {"userName":"Lee","userRegNumber":"930619-2345678"}'
+
 ```
 - 오토스케일이 어떻게 되고 있는지 모니터링을 걸어둔다 : 각각의 Terminal에 
-  - 어느정도 시간이 흐른 후 (약 30초) 스케일 아웃이 벌어지는 것을 확인할 수 있다.
+- 어느정도 시간이 흐른 후 (약 30초) 스케일 아웃이 벌어지는 것을 확인할 수 있다.
   
-<img width="582" alt="스크린샷 2021-09-15 오후 3 08 36" src="https://user-images.githubusercontent.com/89987635/133384946-a6eedf1e-660e-4064-b1aa-d798c0a8a37a.png"> 
+<img width="706" alt="2021-09-30 오후 2 34 50" src="https://user-images.githubusercontent.com/19512435/135393511-90b2e890-3b01-4fd9-b450-ee61d89b09a6.png">
 
 
 ```	
 
-root@labs-1916923594:/home/project# kubectl get hpa
-NAME              REFERENCE                TARGETS   MINPODS   MAXPODS   REPLICAS   AGE
-reservation-hpa   Deployment/reservation   1%/50%    1         10        1          138m
+midi79@Cheolkyuui-iMac ~ % kubectl get hpa
+NAME       REFERENCE         TARGETS   MINPODS   MAXPODS   REPLICAS   AGE
+user-hpa   Deployment/user   2%/50%    1         5         5          3h4m
 
 ```
 
@@ -1020,17 +1022,17 @@ reservation-hpa   Deployment/reservation   1%/50%    1         10        1      
 ## Self Healing
 ### ◆ Liveness- HTTP Probe
 - 시나리오
-  1. Reservation 서비스의 Liveness 설정을 확인힌다. 
-  2. Reservation 서비스의 Liveness Probe는 actuator의 health 상태 확인을 설정되어 있어 actuator/health 확인.
+  1. User 서비스의 Liveness 설정을 확인힌다. 
+  2. User 서비스의 Liveness Probe는 actuator의 health 상태 확인을 설정되어 있어 actuator/health 확인.
   3. pod의 상태 모니터링
-  4. Reservation 서비스의 Liveness Probe인 actuator를 down 시켜 Reservation 서비스가 termination 되고 restart 되는 self healing을 확인한다. 
-  5. Reservation 서비스의 describe를 확인하여 Restart가 되는 부분을 확인한다.
+  4. User 서비스의 Liveness Probe인 actuator를 down 시켜 User 서비스가 termination 되고 restart 되는 self healing을 확인한다. 
+  5. User 서비스의 describe를 확인하여 Restart가 되는 부분을 확인한다.
 
 <br/>
 
-- Reservation 서비스의 Liveness probe 설정 확인
+- User 서비스의 Liveness probe 설정 확인
 ```
-kubectl get deploy reservation -o yaml
+kubectl get deploy user -o yaml
 
                   :
         livenessProbe:
@@ -1049,53 +1051,42 @@ kubectl get deploy reservation -o yaml
 - Httpie를 사용하기 위해 Siege를 설치하고 해당 컨테이너로 접속한다.
 ```
 > kubectl create deploy siege --image=ghcr.io/acmexii/siege-nginx:latest
-> kubectl exec pod/[SIEGE-POD객체] -it -- /bin/bash
+> kubectl exec -it pod/siege-75d5587bf6-qblsz -- /bin/bash
 ```
 
 - Liveness Probe 확인 
 
-<img width="582" alt="스크린샷 2021-09-15 오후 3 11 13" src="https://user-images.githubusercontent.com/89987635/133385107-d191cd39-9246-4698-9a6b-4eb1f35a8ecb.png">
+<img width="735" alt="2021-09-30 오후 2 43 27" src="https://user-images.githubusercontent.com/19512435/135394188-9091f11d-d633-453f-986a-6218e31ef802.png">
 
 - Liveness Probe Fail 설정 및 확인 
-  - Reservation Liveness Probe를 명시적으로 Fail 상태로 전환한다.
+  - User Liveness Probe를 명시적으로 Fail 상태로 전환한다.
 
-<img width="582" alt="스크린샷 2021-09-15 오후 3 14 01" src="https://user-images.githubusercontent.com/89987635/133385278-a7c33be3-95c9-40f2-bc88-78897af82524.png">
+<img width="1398" alt="2021-09-30 오후 3 02 39" src="https://user-images.githubusercontent.com/19512435/135396258-5d6d1829-27e6-4c53-9172-711820816429.png">
 
 
 - Probe Fail에 따른 쿠버네티스 동작확인  
-  - Reservation 서비스의 Liveness Probe가 /actuator/health의 상태가 DOWN이 된 것을 보고 restart를 진행함. 
-    - reservation pod의 RESTARTS가 1로 바뀐것을 확인. 
+  - User 서비스의 Liveness Probe가 /actuator/health의 상태가 DOWN이 된 것을 보고 restart를 진행함. 
+    - user pod의 RESTARTS가 1로 바뀐것을 확인. 
     - describe 를 통해 해당 pod가 restart 된 것을 알 수 있다.
-```
-Every 1.0s: kubectl get pod                                        labs-1916923594: Wed Sep 15 07:08:41 2021
 
-NAME                             READY   STATUS    RESTARTS   AGE
-efs-provisioner-84b8576f-s5m2h   1/1     Running   0          4h49m
-gateway-f48b5bc7c-k47sf          1/1     Running   0          2m27s
-pay-5bbf487cf7-jw6mg             1/1     Running   0          3m23s
-reservation-db4c66457-z8z4q      0/1     Running   1          3m21s
-siege-pvc                        1/1     Running   0          85m
-store-56fbfc5d7d-hlcpm           1/1     Running   0          3m18s
-supplier-58c6f85cb9-54tbc        1/1     Running   0          2m22s
-view-bdc7b9ccd-w5ngd             1/1     Running   0          3m23s
+<img width="735" alt="2021-09-30 오후 3 00 10" src="https://user-images.githubusercontent.com/19512435/135396186-89e7d767-56a1-4d83-90fb-43b387aade34.png">
 
-```
-<img width="1962" alt="스크린샷 2021-09-15 오후 4 11 13" src="https://user-images.githubusercontent.com/89987635/133387508-9b1d5641-48c8-481d-8fb7-0b6d14f967ce.png">
+<img width="1894" alt="2021-09-30 오후 3 02 00" src="https://user-images.githubusercontent.com/19512435/135396386-e7683bd8-4d36-45fa-b28e-eddf6ff6f699.png">
 
 	
 ## 무정지 재배포
 ### ◆ Rediness- HTTP Probe
 - 시나리오
-  1. 현재 구동중인 Reservation 서비스에 길게(3분) 부하를 준다. 
-  2. reservation pod의 상태 모니터링
+  1. 현재 구동중인 User 서비스에 길게(3분) 부하를 준다. 
+  2. user pod의 상태 모니터링
   3. AWS에 CodeBuild에 연결 되어있는 github의 코드를 commit한다.
-  4. Codebuild를 통해 새로운 버전의 Reservation이 배포 된다. 
-  5. pod 상태 모니터링에서 기존 Reservation 서비스가 Terminating 되고 새로운 Reservation 서비스가 Running하는 것을 확인한다.
-  6. Readness에 의해서 새로운 서비스가 정상 동작할때까지 이전 버전의 서비스가 동작하여 seieg의 Avality가 100%가 된다.
+  4. Codebuild를 통해 새로운 버전의 User이 배포 된다. 
+  5. pod 상태 모니터링에서 기존 User 서비스가 Terminating 되고 새로운 User 서비스가 Running하는 것을 확인한다.
+  6. Readness에 의해서 새로운 서비스가 정상 동작할때까지 이전 버전의 서비스가 동작하여 seige의 Availability가 100%가 된다.
 
 <br/>
 
-- reservstion 서비스의 Readness probe  설정 확인
+- User 서비스의 Readness probe  설정 확인
   - buildspec_kubectl.yaml
 ```
                     readinessProbe:
@@ -1108,146 +1099,73 @@ view-bdc7b9ccd-w5ngd             1/1     Running   0          3m23s
                       failureThreshold: 10
 ```
 
-- 현재 구동중인 Reservation 서비스에 길게(2분) 부하를 준다. 
+- 현재 구동중인 User 서비스에 길게(3분) 부하를 준다. (HPA 설정 제거 및 delete 필요)
 ```
-> siege -v -c1 -t120S --content-type "application/json" 'http://reservation:8080/reservation/order POST {"productId": 222,"productName": "Galaxy Watch7","productPrice": 5000000,"customerId”:999,”customerName":"Sam","customerPhone":"010-9837-0279","qty":2}'
-```
-<img width="794" alt="스크린샷 2021-09-15 오후 3 32 43" src="https://user-images.githubusercontent.com/89987635/133385792-924fefb0-562f-4697-bdc6-67baba830247.png">
-<img width="710" alt="스크린샷 2021-09-15 오후 3 39 02" src="https://user-images.githubusercontent.com/89987635/133385810-3bb01bcf-f940-4f47-a035-82922ab02565.png">
+siege -v c1 -t180S --content-type "application/json" 'http://user:8080/users'
 
+```
+<img width="644" alt="2021-09-30 오후 3 43 06" src="https://user-images.githubusercontent.com/19512435/135400935-767f73d9-ef26-4d18-b8bf-a0a746476d0a.png">
 
 - AWS에 CodeBuild에 연결 되어있는 github의 코드를 commit한다.
-  Resevatio 서비스의 아무 코드나 수정하고 commit 한다. 
+  User 서비스의 아무 코드나 수정하고 commit 한다. 
   배포 될때까지 잠시 기다린다. 
   Ex) buildspec-kubectl.yaml에 carrage return을  추가 commit 한다. 
 
 
-- pod 상태 모니터링에서 기존 Reservation 서비스가 Terminating 되고 새로운 Reservation 서비스가 Running하는 것을 확인한다.
+- pod 상태 모니터링에서 기존 User 서비스가 Terminating 되고 새로운 User 서비스가 Running하는 것을 확인한다.
 - pod의 상태 모니터링
-<img width="586" alt="스크린샷 2021-09-15 오후 4 59 23" src="https://user-images.githubusercontent.com/89987635/133394310-befb67aa-4384-40f3-a33c-974f1ee52d79.png">
+
+<img width="807" alt="2021-09-30 오후 4 05 12" src="https://user-images.githubusercontent.com/19512435/135403847-795e4dba-a99f-4fa0-8243-429c08b97ce4.png">
 
 
-## Persistant Volume Claim
+
+## ConfigMap
 - 시나리오
-  1. EFS 생성 화면 캡쳐.
-  2. 등록된 provisoner / storageclass / pvc 확인.
-  3. 각 서비스의 buildspec_kubectl.yaml에 pvc 생성 정보 확인.
-  4. bash shell을 사용할 수 있는 pod를 동일한 PVC 사용할 수 있게 설정 후 배포하여 '/mnt/aws'에 각 서비스에서 생성한 파일을 확인. 
+  1. ConfigMap 등록
+  2. ConfigMap 설정 소스
+  3. ConfigMap 활용 결과
   
 
-- EFS 등록 화면 추가..
+- ConfigMap 등록
 ```
-이미지 추가.
-```
+kubectl create configmap vaccine-type --from-literal=type=Pfizer,Moderna,Janssen,AstraZeneca
 
-- provisioner 확인
 ```
-> kubectl get pod
+<img width="811" alt="2021-09-30 오후 3 48 21" src="https://user-images.githubusercontent.com/19512435/135401618-c5b5dca8-be9a-4578-aa7a-6824a1ced6d9.png">
 
-NAME                              READY   STATUS    RESTARTS   AGE
-efs-provisioner-5976978f5-cqbzq   1/1     Running   0          19s
-```
 
-- storageClass 등록, 조회
+- ConfigMap 설정 소스
+  - Hospital 서비스 : 백신 종류를 String 타입으로 받아서 파싱하여 배열로 활용
 ```
-> kubectl get sc
-NAME            PROVISIONER             RECLAIMPOLICY   VOLUMEBINDINGMODE      ALLOWVOLUMEEXPANSION   AGE
-aws-efs         my-aws.com/aws-efs      Delete          Immediate              false                  14s
-gp2 (default)   kubernetes.io/aws-ebs   Delete          WaitForFirstConsumer   false                  27h
-```
-- pvc 확인
-```
-> kubectl get pvc
-> kubectl describe pvc
-  Type    Reason                 Age                From                                                                                     Message
-  ----    ------                 ----               ----                                                                                     -------
-  Normal  ExternalProvisioning   35s (x2 over 35s)  persistentvolume-controller                                                              waiting for a volume to be created, either by external provisioner "my-aws.com/aws-efs" or manually created by system administrator
-  Normal  Provisioning           35s                my-aws.com/aws-efs_efs-provisioner-5976978f5-cqbzq_5cde0b7c-906d-477e-9e02-5b4823a9ca5c  External provisioner is provisioning volume for claim "default/aws-efs"
-  Normal  ProvisioningSucceeded  35s                my-aws.com/aws-efs_efs-provisioner-5976978f5-cqbzq_5cde0b7c-906d-477e-9e02-5b4823a9ca5c  Successfully provisioned volume pvc-c770d8b7-ef09-4a19-903b-cced4daa9f1d
-```
-<br/>
+# buildspec-kubectl.yaml
 
-- 각 Deployment의 PVC 생성정보는 buildspec-kubeclt.yaml에 적용되어있다.
-```
-                    volumeMounts:
-                      - mountPath: "/mnt/aws"
-                        name: volume
-                        :
-                        :
-                        :
-                volumes:
-                  - name: volume
-                    persistentVolumeClaim:
-                      claimName: aws-efs
+    env:
+    - name: VACCINE_TYPE
+      valueFrom:
+	configMapKeyRef:
+	  name: vaccine-type
+	  key: type
+	  
+	  
+	  
+# application.yml 
+
+vaccine:
+  type: ${VACCINE_TYPE}
+  
+  
+  
+# PolicyHandler.java
+
+	@Value("${vaccine.type}")
+	String vaccineType;
+
 ```
 
-
-- 각 서비스의 Event 발생시 JSON 정보를 파일로 저장한다. 마지막 정보만 저정하기 위해 Overwirte하여 저장한다. 
-  - 아래와 같은 코드를 통하여 /mnt/aws의 경로에 파일을 저장한다. 
-```
-# AbstractEvent.java
-
-// PVC Test
-public void saveJasonToPvc(String strJson){
-    File file;
-
-    if (strJson.equals("CANCEL")){
-    file = new File("/mnt/aws/reservationCancelled_json.txt");
-    }else{
-        file = new File("/mnt/aws/productReserved_json.txt");
-    }
-
-    try {
-      BufferedWriter writer = new BufferedWriter(new FileWriter(file));
-      writer.write(strJson);
-      writer.close();
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
-} 
-
-
-public void saveJasonToPvc(String strJson){
-    File file;
-
-    if (strJson.equals("RESERVE")){
-    file = new File("/mnt/aws/payRequested_json.txt");
-    }else{
-        file = new File("/mnt/aws/payCancelled_json.txt");
-    }
-
-    try {
-      BufferedWriter writer = new BufferedWriter(new FileWriter(file));
-      writer.write(strJson);
-      writer.close();
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
-}
-
-
-// PVC Test
-public void saveJasonToPvc(String strJson){
-    
-    File file = new File("/mnt/aws/productPickedupjson.txt");
-
-    try {
-      BufferedWriter writer = new BufferedWriter(new FileWriter(file));
-      writer.write(strJson);
-      writer.close();
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
-}  
-```
-
-- 각 서비스에서 저장한 Event 정보파일을 동일한 PVC를 사용하는 Pod를 생성하여 배포 후 /mnt/aws에 저장되어 있는지 확인. 
-
-<img width="1115" alt="스크린샷 2021-09-15 오후 3 42 05" src="https://user-images.githubusercontent.com/89987635/133385983-48f1a1d1-2c58-4a34-9c32-ba9d6a5f8b50.png">
-
-
-- 서비스 Event를 저장한 파일들을 확인 할 수 있다. 
-
+- ConfigMap 활용 결과
+  - 백신 예약시 랜덤으로 백신 종류가 선택되고, Dashboard에서 사용자별로 접종된 백신 종류 조회 가능
+  
+<img width="807" alt="2021-09-30 오후 3 54 17" src="https://user-images.githubusercontent.com/19512435/135403153-c7832afb-db7c-46d3-8c48-d142ae8185da.png">
 
 
 
