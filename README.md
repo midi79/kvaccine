@@ -899,16 +899,16 @@ feign:
 
 hystrix:
   command:
-    # 전역설정 timeout이 610ms 가 넘으면 CB 처리.
+    # 전역설정 timeout이 810ms 가 넘으면 CB 처리.
     default:
-      execution.isolation.thread.timeoutInMilliseconds: 610
+      execution.isolation.thread.timeoutInMilliseconds: 810
 ```
-- Reservation 서비스에 임의 부하 처리 - 500 밀리에서 증감 120 밀리 정도 왔다갔다 하게 아래 코드 추가
+- Reservation 서비스에 임의 부하 처리 - 600 밀리에서 증감 220 밀리 정도 왔다갔다 하게 아래 코드 추가
 ```
 # ReservationController.java
 
 try {
-    Thread.currentThread().sleep((long) (500 + Math.random() * 120));
+    Thread.currentThread().sleep((long) (600 + Math.random() * 220));
 } catch (InterruptedException e) {
     e.printStackTrace();
 }
